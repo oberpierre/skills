@@ -49,6 +49,8 @@ Run `/setup` once in each repository. If a skill name clashes with another, `/ob
 
 After cloning, run `scripts/gate.sh --install` once, so the gate runs before every commit. Git does not version hooks, which is why the step exists. The gate needs the `claude` CLI, either on your `PATH` or inside the VS Code extension.
 
+An eval case that resumes a recorded conversation replays the skill text from when it was recorded. After editing a `SKILL.md`, run `python3 evals/refresh-history.py`, or the gate stops the commit.
+
 Point a project at your working copy by adding this to its `.claude/settings.local.json`:
 
 ```json
