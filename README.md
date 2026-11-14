@@ -4,7 +4,7 @@ Agent skills for building software in small, reviewed steps. You make every deci
 
 Built for solo projects, and usable in any repository: the build, test and tracker details of a project live in its own `.agents/config.yml`, never in the skills.
 
-> **Status:** in development. The design is recorded in [docs/adr/](docs/adr/), and the skills are being written one at a time.
+> **Status:** in development. `grill` is usable, and the other skills are being written one at a time. The design is recorded in [docs/adr/](docs/adr/).
 
 ## How it works
 
@@ -35,8 +35,6 @@ You take part in grilling, in approving the slices and in reviewing each slice's
 | `pr` | agent or you | The shape of a pull request body |
 
 ## Install
-
-Not released yet. Once it is:
 
 ```bash
 claude plugin marketplace add oberpierre/skills
