@@ -11,6 +11,9 @@ graders:
   - name: round-format
     type: regex
     pattern: '\*\*Q1\b[\s\S]*➡️[\s\S]*\*\*Q2\b[\s\S]*➡️'
+  - name: closing-line
+    type: regex
+    pattern: 'list the decisions for you to confirm once nothing is open'
   - name: writes-nothing
     type: tool_used
     tool: Write

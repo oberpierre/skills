@@ -10,8 +10,8 @@ The skill that interviews the user until every decision about a feature is made,
 |---|---|---|---|---|---|---|
 | G1 | Interviews in rounds, each question with a recommended answer, then waits, and writes no code | `grill-first-round` | none | done | `5a254d5` | `214576b` |
 | G2 | Never asks the user what the repository answers | `grill-first-round` | G1 | done, no skill text | `214576b` | `f16dfaa` |
-| G3 | Maps an idea worded as something new onto the mechanism the repository already has | `grill-maps-onto-existing` | G1 | done, no skill text | `2df2ec3` | |
-| G4 | Asks only questions whose prerequisites are settled, and builds each round from the last one's answers | `grill-second-round` | G1 | todo | | |
+| G3 | Maps an idea worded as something new onto the mechanism the repository already has | `grill-maps-onto-existing` | G1 | done, no skill text | `2df2ec3` | `b7f381a` |
+| G4 | Asks only questions whose prerequisites are settled, builds each round from the last one's answers, and never builds during the session | `grill-second-round` | G1 | done | `b7f381a` | |
 | G5 | Records settled terms in `GLOSSARY.md`, and decisions that meet the bar as ADRs | `grill-records-terms` | G1 | todo | | |
 | G6 | Ends with a challenge of the plan, whose findings become the last round | `grill-ends-with-challenge` | G5, the `challenge` skill | todo | | |
 
@@ -31,6 +31,10 @@ G2 to G5 each extend the same `SKILL.md`, and nothing else connects them, so the
 
 - G3 has its own fixture, `eventbus`: 20 files where shipping publishes an `OrderShipped` event that a `Mailer` subscribes to through `channels/registry.py`, and nothing is named "notification". The prompt asks for "an SMS service". A planted control told to propose a standalone service scored 0 on both graders, so the case can fail.
 - G3 adds no skill text. On G1's skill, all three runs named the bus and proposed SMS as another subscriber, the judge passing each 3 to 0, for $0.48. The case is kept as a pin. Its lead over the run without the plugin is measured when the skill is complete. Twenty files is still far from the size of repository where the failure it guards against was seen, which this case cannot reproduce.
+- A case built on a `history_file` resumes a recorded session, and the session holds the skill text expanded when it was recorded. The run without the plugin therefore resumes the same instructions, so such a case is judged on its score alone and stays out of the 0.3 average. The recorded expansion has to be rewritten from the current `SKILL.md` whenever the skill changes, or the case tests stale instructions.
+- `grill-second-round` resumes a first round recorded on the `notifier` fixture, with the session reduced to its conversation entries: the recording also stored the full API request, the user's email address included, which a public repository cannot carry. Machine paths became `/eval/cwd` and `/plugin`. Its round 1 was recorded under G1's text and was given G4's closing line by hand, so it reads as the current skill would write it.
+- G4 was red three ways before it was green. On G1's text, round 2 dropped the round format and restarted its numbering at 1. With rules for later rounds added, every run instead answered the opened question itself and wrote the implementation into its reply, which "change no source file" did not forbid. The rules that closed it: no code in replies either, an opened question goes to the user, and every round ends with a closing line saying what happens next. Green runs scored 1.0, 1.0 and 0.8, the 0.8 being the judge reading a moot-decision note as re-asking. The rule change and the closing line landed together, so which of them did the work is unknown.
+- G4 cost $2.31: recording the first round $0.19, four rounds of runs $1.33, and $0.79 rerunning the earlier cases on the changed text, which still passed every run. `--case` takes one pattern, the last one given when repeated.
 
 ## Open
 
