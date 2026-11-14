@@ -8,8 +8,8 @@ The skill that attacks a plan or a diff from a context that never saw it being m
 
 | Slice | Behaviour | Acceptance cases | Blocked by | Status | Base | Head |
 |---|---|---|---|---|---|---|
-| C1 | A plan challenge reports a plan that builds a second mechanism beside an existing one, as a finding with kind, location and evidence, and edits nothing | `challenge-plan-second-mechanism` | none | done | `b23618a` | |
-| C2 | A plan challenge reaches its verdict without the caller's conversation, even one that argued for the flaw | `challenge-ignores-the-conversation` | C1 | todo | | |
+| C1 | A plan challenge reports a plan that builds a second mechanism beside an existing one, as a finding with kind, location and evidence, and edits nothing | `challenge-plan-second-mechanism` | none | done | `b23618a` | `251ccfa` |
+| C2 | A plan challenge reaches its verdict without the caller's conversation, even one that argued for the flaw | `challenge-ignores-the-conversation` | C1 | done, no skill text | `251ccfa` | |
 | C3 | The diff lens judges a range's diff against the agent file, the `standards` key and the smell baseline in `CODE.md` | `challenge-diff-against-standards` | C1, a Bash-capable eval environment | todo | | |
 | C4 | `grill` ends by writing the decision log to the plan, calling `challenge` on it, and asking its findings as a `Challenge:` round before listing the decisions | `grill-ends-with-challenge` | C1 | todo | | |
 
@@ -36,6 +36,8 @@ C4 is G6 of the grill plan, moved here because it depends on this skill. The pla
 
 - C1 ran red with no skill at 0.8 on every run: unprompted, Claude reported the second mechanism with a location but never named a finding's kind. With the skill, 1.0 on every run, against 1.0, 0.8 and 0.6 without it (one baseline run missed the second mechanism). The attack lines in `PLAN.md` are ADR 0006's list, and only the kind and the form were shown to need text. C1 cost $1.49.
 - A forked skill's tool calls appear in the eval trace as subagent calls, and `tool_used` graders count them. `reads-the-code` pins that, so `writes-nothing` cannot pass merely because the fork's calls are invisible.
+
+- C2 resumes a short conversation in which the user insists on the separate `send_sms` path and the assistant agrees not to treat it as a second mechanism. Run red with `context: fork` removed, the challenge still reported the second mechanism on every run, but two of three quoted the conversation ("Twilio is flaky", "an outage can never touch"), which the plan never says. A `not_contains` regex on those phrases, weighted 3 so that its failure fails the case, is what tells a leak apart. With the fork, 1.0 on every run. A judge criterion ending in "it fails if…" split its votes on a correct report and was cut back to the positive condition. C2 adds no skill text and cost $1.14.
 
 ## Open
 
