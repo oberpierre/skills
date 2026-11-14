@@ -1,0 +1,56 @@
+schema_version: "1.0"
+name: grill-second-round
+description: A second grilling round builds on the first round's answers, asking only what they opened and nothing they settled.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: >-
+    Q1 yes. Q2 no: everyone with a phone number gets the text, but they must be able to stop
+    receiving them. Q3 yes. Q4 yes. Q5 yes. Q6 no, keep it a print stub like EmailNotifier
+    for now. Q7 to Q10 yes.
+  max_turns: 10
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: round-format
+    type: regex
+    pattern: '❓ \*\*Q(1[1-9]|[2-9]\d)\b[\s\S]*➡️'
+  - name: writes-no-code
+    type: tool_used
+    tool: Write
+    input_match: '\.py'
+    min: 0
+    max: 0
+  - name: edits-no-code
+    type: tool_used
+    tool: Edit
+    input_match: '\.py'
+    min: 0
+    max: 0
+  - name: at-most-one-adr
+    type: tool_used
+    tool: Write
+    input_match: 'docs/adr/'
+    min: 0
+    max: 1
+  - name: asks-what-the-answers-opened
+    type: llm
+    criteria: >-
+      The user declined opt-in but required that customers can stop receiving texts, which
+      opens the question of how a customer stops them. The response passes if its new round
+      asks how stopping works (for example a reply keyword, a stored preference, or both).
+  - name: reasks-nothing-settled
+    type: llm
+    criteria: >-
+      The user has already decided: an injected phone lookup, no opt-in, skipping customers
+      without a number, isolating failures per notifier, no retries, a print stub instead of
+      real Twilio, credentials from environment variables, the email's message text, a
+      factory reading channels.toml, and unit tests. The response passes if none of its
+      questions asks one of these again. A follow-up these answers raise is fine, and so is
+      noting that an answer (such as the stub) makes an earlier decision moot.
+  - name: no-adr-for-a-default
+    type: tool_used
+    tool: Write
+    input_match: 'docs/adr/[\s\S]*(TWILIO_|[Ee]nvironment variable|[Cc]redential|[Ss]ecret)'
+    min: 0
+    max: 0

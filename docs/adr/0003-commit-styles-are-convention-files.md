@@ -4,7 +4,7 @@
 
 The presets are `arlo`, `arlo-features`, `conventional` and `plain`. A style may begin with `extends: <style>` and then state only what it changes. Extension is one level deep, so a style never extends a style that itself extends another.
 
-`arlo` is a condensed version of Arlo's Commit Notation, written for an agent to apply and linking to its source. `arlo-features` extends it for feature development. Its `^` is earned by one behaviour pinned by a test with the gate green, whatever the line count. A correction that records a discovery stays as its own commit, whereas a correction of a review finding becomes a fixup and is squashed into the commit it corrects. `t` marks a commit that only repairs a test, found after the test reached the main branch. The agent that ran the gate sets the risk marker, and it writes `!` whenever something could not be verified.
+`arlo` is a condensed version of Arlo's Commit Notation, written for an agent to apply and linking to its source. `arlo-features` extends it for feature development. Its `^` is earned by one behaviour pinned by a test with the gate green, whatever the line count. A correction that records a discovery stays as its own commit, whereas a correction of a review finding becomes a fixup and is squashed into the commit it corrects. `t` marks a commit that changes only tests, either pinning behaviour that already exists or repairing a test found after it reached the main branch. The agent that ran the gate sets the risk marker, and it writes `!` whenever something could not be verified.
 
 ## Why
 

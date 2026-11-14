@@ -1,0 +1,2 @@
+# Sessions an eval writes beside a resumed history_file, one per session ID.
+evals/**/[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*.jsonl
