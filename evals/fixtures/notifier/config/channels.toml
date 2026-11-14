@@ -1,0 +1,6 @@
+[email]
+smtp_host = "smtp.shopnotes.example"
+
+[sms]
+provider = "twilio"
+from_number = "+15550100"

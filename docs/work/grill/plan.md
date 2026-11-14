@@ -8,8 +8,8 @@ The skill that interviews the user until every decision about a feature is made,
 
 | Slice | Behaviour | Acceptance cases | Blocked by | Status | Base | Head |
 |---|---|---|---|---|---|---|
-| G1 | Interviews in rounds, each question with a recommended answer, then waits, and writes no code | `grill-first-round` | none | done | `5a254d5` | |
-| G2 | Hands fact lookups to subagents and never asks the user what the code answers | `grill-no-fact-questions` | G1 | todo | | |
+| G1 | Interviews in rounds, each question with a recommended answer, then waits, and writes no code | `grill-first-round` | none | done | `5a254d5` | `214576b` |
+| G2 | Never asks the user what the repository answers | `grill-first-round` | G1 | done, no skill text | `214576b` | |
 | G3 | Maps the idea onto existing concepts first, and flags anything new as a deviation | `grill-maps-onto-existing` | G1 | todo | | |
 | G4 | Asks only questions whose prerequisites are settled, and builds each round from the last one's answers | `grill-second-round` | G1 | todo | | |
 | G5 | Records settled terms in `GLOSSARY.md`, and decisions that meet the bar as ADRs | `grill-records-terms` | G1 | todo | | |
@@ -20,8 +20,9 @@ G2 to G5 each extend the same `SKILL.md`, and nothing else connects them, so the
 ## Decision log
 
 - The cases share one fixture, a small repository whose notifications go out by email through a `Notifier` interface, and the idea under test is SMS notifications. The right answer extends what exists, which is the failure `grill` exists to prevent.
-- Deterministic graders (`regex`, `script`, `file_exists`, `tool_used`) carry every behaviour with a fixed form. `llm` graders judge only what needs meaning, such as whether the agent stopped and waited.
-- G2 grades `tool_used: Agent`, because lookups happen inside a subagent and a grader may not see tool calls made there.
+- Deterministic graders (`regex`, `file_exists`, `tool_used`, `tool_order`) carry every behaviour with a fixed form. `llm` graders judge only what needs meaning, such as whether the agent stopped and waited.
+- G2 pins the property, not the mechanism. Its graders check that the round names the configured provider and asks nothing the repository answers, never how the fact was found. The fixture's `config/channels.toml`, which provisions SMS through Twilio, is the fact a run would otherwise ask about.
+- G2 adds no skill text. Run on G1's skill, its graders passed every run, so Claude looks facts up unprompted and a line telling it to would change nothing. Its graders joined `grill-first-round` to guard against a later edit breaking the behaviour. With them that case scored 1.0 on every run with the plugin and 0.78 without (one run without asked for the provider), a lead of 0.22, for $0.67.
 - Eval cost is recorded per slice from the eval result's `costUsd`, to estimate what evals cost for future skills.
 - The 0.3 lead applies to the average across a skill's cases, not to each case. Both arms receive the same prompt, so the run without the plugin still sees the word "grill" and asks questions unprompted, which caps what a single case can show. A case whose lead stays near zero once the skill is complete marks a part of the skill to cut.
 - G1 measured: with the plugin 1.0 on every run, without it 0.75 (it never used the round format), a lead of 0.25. A session cost $0.095 to $0.11 and took 22 to 29 seconds, a judge call about $0.0007, and the full case (three runs in each arm) $0.62 in 2.5 minutes.

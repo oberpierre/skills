@@ -1,6 +1,6 @@
 schema_version: "1.0"
 name: grill-first-round
-description: A first grilling round is a numbered set of questions with recommended answers, and nothing gets built.
+description: A first grilling round is a numbered set of questions with recommended answers, asks nothing the repository answers, and builds nothing.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -28,3 +28,15 @@ graders:
       Recommended answers that mention how something could be built are fine.
       It fails only if the response goes past the questions: it answers them itself and
       carries on, starts writing or changing code, or says it is now going to build.
+  - name: names-the-provisioned-provider
+    type: regex
+    pattern: 'twilio'
+    flags: i
+  - name: asks-no-fact
+    type: llm
+    criteria: >-
+      The repository configures SMS through Twilio in config/channels.toml, and notifications
+      go through a Notifier interface with an EmailNotifier. The response passes if none of its
+      questions asks the user for something the repository already answers, such as which SMS
+      provider to use, whether SMS is set up, or how notifications are sent today. Stating
+      those facts is fine, and so is asking whether to keep or change them.
