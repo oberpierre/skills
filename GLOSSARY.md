@@ -85,3 +85,7 @@ _Avoid_: reviewer
 **Gotcha**:
 A surprise about a tool or the codebase, recorded in the agent file so the next agent is spared it.
 _Avoid_: field guide entry, tip
+
+**Finding**:
+One thing a challenge reports, with where it is and the evidence that it is wrong. A defect is a finding that a fact settles, and a question is one that needs a decision from the user.
+_Avoid_: issue, comment, remark
