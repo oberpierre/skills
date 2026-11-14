@@ -91,7 +91,7 @@ for skill_md in "$root"/skills/*/SKILL.md; do
 done
 
 if ! python3 -I "$root/evals/refresh-history.py" --check; then
-  fail "an eval history carries stale skill text"
+  fail "an eval history is stale or broken"
 fi
 
 if (( failed )); then

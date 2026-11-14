@@ -2,7 +2,7 @@
 
 **Branch:** `feature/grill`
 
-The skill that interviews the user until every decision about a feature is made, recording terms and decisions as it goes. Every slice is pinned by eval cases under `evals/grill-*`, run with `claude plugin eval . --case 'grill-*' --scaffold --trust-plugin --no-publish`. A case passes at a score of at least 0.67 (`--threshold 0.67`) and must score above the run without the plugin. The finished skill's cases must lead that run by at least 0.3 on average.
+The skill that interviews the user until every decision about a feature is made, recording terms and decisions as it goes. Every slice is pinned by eval cases under `evals/grill-*`, run with `claude plugin eval . --case '<case>' --allow-tools Write Edit --scaffold --trust-plugin --no-publish`. A case passes at a score of at least 0.67 (`--threshold 0.67`) and must score above the run without the plugin. The finished skill's cases must lead that run by at least 0.3 on average.
 
 ## Slices
 
@@ -11,7 +11,7 @@ The skill that interviews the user until every decision about a feature is made,
 | G1 | Interviews in rounds, each question with a recommended answer, then waits, and writes no code | `grill-first-round` | none | done | `5a254d5` | `214576b` |
 | G2 | Never asks the user what the repository answers | `grill-first-round` | G1 | done, no skill text | `214576b` | `f16dfaa` |
 | G3 | Maps an idea worded as something new onto the mechanism the repository already has | `grill-maps-onto-existing` | G1 | done, no skill text | `2df2ec3` | `b7f381a` |
-| G4 | Asks only questions whose prerequisites are settled, builds each round from the last one's answers, and never builds during the session | `grill-second-round` | G1 | done | `b7f381a` | |
+| G4 | Asks only questions whose prerequisites are settled, builds each round from the last one's answers, and never builds during the session | `grill-second-round` | G1 | done | `b7f381a` | `8592f84` |
 | G5 | Records settled terms in `GLOSSARY.md`, and decisions that meet the bar as ADRs | `grill-records-terms` | G1 | todo | | |
 | G6 | Ends with a challenge of the plan, whose findings become the last round | `grill-ends-with-challenge` | G5, the `challenge` skill | todo | | |
 
@@ -35,6 +35,9 @@ G2 to G5 each extend the same `SKILL.md`, and nothing else connects them, so the
 - `grill-second-round` resumes a first round recorded on the `notifier` fixture, with the session reduced to its conversation entries: the recording also stored the full API request, the user's email address included, which a public repository cannot carry. Machine paths became `/eval/cwd` and `/plugin`. Its round 1 was recorded under G1's text and was given G4's closing line by hand, so it reads as the current skill would write it.
 - G4 was red three ways before it was green. On G1's text, round 2 dropped the round format and restarted its numbering at 1. With rules for later rounds added, every run instead answered the opened question itself and wrote the implementation into its reply, which "change no source file" did not forbid. The rules that closed it: no code in replies either, an opened question goes to the user, and every round ends with a closing line saying what happens next. Green runs scored 1.0, 1.0 and 0.8, the 0.8 being the judge reading a moot-decision note as re-asking. The rule change and the closing line landed together, so which of them did the work is unknown.
 - G4 cost $2.31: recording the first round $0.19, four rounds of runs $1.33, and $0.79 rerunning the earlier cases on the changed text, which still passed every run. `--case` takes one pattern, the last one given when repeated.
+
+- G4's first green proved less than its commit claimed. Removing the recording's non-conversation entries broke the `parentUuid` chain a resume walks back along, so the resumed session saw only round 1's text and never the skill. That green came from the closing line added to round 1 and from the user's answers, and the G4 rules in `SKILL.md` went untested. `refresh-history.py` now relinks a broken chain and the gate fails on one. A probe asking the resumed agent to quote the skill confirmed it sees the text once the chain is whole.
+- Write, Edit and Bash are gated tools that an eval grants only through `--allow-tools`, so every `writes-nothing` and `edits-nothing` before this point passed because the tool did not exist. Granting Bash needs a sandbox backend (`bubblewrap`), which the devcontainer lacks, so cases run with `--allow-tools Write Edit`.
 
 ## Open
 
