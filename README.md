@@ -49,11 +49,16 @@ After cloning, run `scripts/gate.sh --install` once, so the gate runs before eve
 
 An eval case that resumes a recorded conversation replays the skill text from when it was recorded. After editing a `SKILL.md`, run `python3 evals/refresh-history.py`, or the gate stops the commit.
 
-Point a project at your working copy by adding this to its `.claude/settings.local.json`:
+To try your working copy in another project, start Claude Code with the environment variable `CLAUDE_CODE_PLUGIN_DIRS` naming it. Setting it in the `env` block of a project's `.claude/settings.local.json` does not load the plugin.
 
-```json
-{ "env": { "CLAUDE_CODE_PLUGIN_DIRS": "/path/to/oberpierre-skills" } }
-```
+- **Terminal:** add `export CLAUDE_CODE_PLUGIN_DIRS=/path/to/oberpierre-skills` to your shell profile, or start one session with `claude --plugin-dir /path/to/oberpierre-skills`.
+- **VS Code extension:** add this to your user settings, or in a dev container to its remote settings (**Preferences: Open Remote Settings (JSON)**), then reload the window:
+
+  ```json
+  "claudeCode.environmentVariables": [
+    { "name": "CLAUDE_CODE_PLUGIN_DIRS", "value": "/path/to/oberpierre-skills" }
+  ]
+  ```
 
 The working copy takes precedence over an installed version from the next session on.
 

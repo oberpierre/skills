@@ -19,3 +19,5 @@ Budget: 40 lines. Each entry is something that cost a round to find out.
 - Resuming a `history_file` writes a session file named after its ID into the case folder. `.gitignore` covers it.
 - An `llm` grader with a double negative in its criterion judged the wrong thing. Where the behaviour has a fixed form, a `regex` or `tool_used` grader is checked offline first against saved traces and is then trusted over a judge.
 - Claude already looks facts up instead of asking, and maps an idea onto an existing mechanism in a 20-file repository, without being told. Run the case red first, and write a skill line only for what it does not do.
+- Asking the model which skills it has is no test of whether a plugin loaded, because `disable-model-invocation: true` hides a user-invoked skill from the model. Type the command in a fresh session and check that the transcript shows it expanded.
+- `CLAUDE_CODE_PLUGIN_DIRS` loads a plugin only from the process environment. Set under `env` in a settings file, it does nothing.
