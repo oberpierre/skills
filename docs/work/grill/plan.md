@@ -12,7 +12,7 @@ The skill that interviews the user until every decision about a feature is made,
 | G2 | Never asks the user what the repository answers | `grill-first-round` | G1 | done, no skill text | `214576b` | `f16dfaa` |
 | G3 | Maps an idea worded as something new onto the mechanism the repository already has | `grill-maps-onto-existing` | G1 | done, no skill text | `2df2ec3` | `b7f381a` |
 | G4 | Asks only questions whose prerequisites are settled, builds each round from the last one's answers, and never builds during the session | `grill-second-round` | G1 | done | `b7f381a` | `8592f84` |
-| G5 | Records settled terms in `GLOSSARY.md`, and decisions that meet the bar as ADRs | `grill-records-terms` | G1 | todo | | |
+| G5 | Records settled terms in `GLOSSARY.md`, and decisions that meet the bar as ADRs | `grill-records-terms` | G1 | done | `38548da` | |
 | G6 | Ends with a challenge of the plan, whose findings become the last round | `grill-ends-with-challenge` | G5, the `challenge` skill | todo | | |
 
 G2 to G5 each extend the same `SKILL.md`, and nothing else connects them, so their order is the table's. G6 waits for `challenge`, which is built after G5.
@@ -38,6 +38,10 @@ G2 to G5 each extend the same `SKILL.md`, and nothing else connects them, so the
 
 - G4's first green proved less than its commit claimed. Removing the recording's non-conversation entries broke the `parentUuid` chain a resume walks back along, so the resumed session saw only round 1's text and never the skill. That green came from the closing line added to round 1 and from the user's answers, and the G4 rules in `SKILL.md` went untested. `refresh-history.py` now relinks a broken chain and the gate fails on one. A probe asking the resumed agent to quote the skill confirmed it sees the text once the chain is whole.
 - Write, Edit and Bash are gated tools that an eval grants only through `--allow-tools`, so every `writes-nothing` and `edits-nothing` before this point passed because the tool did not exist. Granting Bash needs a sandbox backend (`bubblewrap`), which the devcontainer lacks, so cases run with `--allow-tools Write Edit`.
+
+- G5 resumes the same round 1 as G4, answered so as to settle the term *channel* and to change the `Notifier` protocol against Q1's recommendation, the one decision meant to earn an ADR. On G4's text it scored 0: no glossary and no ADR. While the resumed session still could not see the skill, the agent recorded the term in its own memory instead, and two lines added against that turned out unneeded once the skill was visible: without them every run still wrote `GLOSSARY.md` and exactly one ADR, for the protocol change, scoring 1.0 three times. They were removed.
+- With the skill visible, G4's round 2 also recorded, writing three ADRs and a glossary entry from one round of answers. One of the three was for reading secrets from environment variables, an industry default. The bar "cross-feature, hard to reverse or surprising" lets nearly every decision through, which the next slice addresses.
+- G5 and the fixes it uncovered cost about $3.20, bringing the skill to about $8.10. Debugging the harness cost more than the skill did.
 
 ## Open
 
