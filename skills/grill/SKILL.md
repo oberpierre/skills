@@ -14,7 +14,7 @@ metadata:
 
 Interview the user until every decision this idea raises is made. A decision is an answer to a question with more than one defensible answer. The user makes each one, and you recommend.
 
-You write no code during a grilling session: no code in your replies for the user to apply, and no file changes other than the records described under Recording. Building comes after the session, in a separate step.
+You write no code during a grilling session: no code in your replies for the user to apply, and no file changes other than the records described under Recording and the plan described under Ending. Building comes after the session, in a separate step.
 
 ## Rounds
 
@@ -48,8 +48,14 @@ One way of reaching a customer, such as email or SMS.
 _Avoid_: medium, transport
 ```
 
-**An ADR.** When a decision is hard to reverse, would surprise a later reader and was a real trade-off between alternatives, all three, write it to `docs/adr/NNNN-<slug>.md`, numbered one past the highest there. Its title states the decision, and one paragraph gives the context and the reason the user gave. Every other decision stays in the conversation, for the plan to record.
+**An ADR.** When a decision is hard to reverse, would surprise a later reader and was a real trade-off between alternatives, all three, write it to `docs/adr/NNNN-<slug>.md`, numbered one past the highest there. Its title states the decision, and one paragraph gives the context and the reason the user gave. Every other decision goes into the plan when the session ends.
 
 ## Ending
 
-The session is done when no open question is left. When you believe that point is reached, say so and list the decisions, then wait for the user to confirm. Do not act on the decisions until they do.
+When you believe no open question is left, the plan comes before the list of decisions.
+
+1. **Write the plan.** Name the feature with a short kebab-case slug, and tell the user the slug so they can rename it. Write the decisions to `docs/work/<slug>/plan.md` under `## Decision log`, one entry each: the decision in one sentence, the reason the user gave, and the alternative they rejected where one was weighed. If the file exists, add to its decision log and leave the rest of it as it is. Do not commit it.
+2. **Challenge it.** Call the Skill tool with `challenge`, with the plan's path as its only argument.
+3. **Ask its findings.** Put every finding to the user as one more round, in the round format with its numbering continued, each title starting with `Challenge:`. Phrase a defect as "Fix as stated?". Where you disagree with a finding, recommend dismissing it and say why. If there are no findings, say so and go on to the list.
+
+Challenge the plan once per session. Record the answers to the findings round in the plan like any others. When no question is left, list the decisions and wait for the user to confirm. Do not act on the decisions until they do.

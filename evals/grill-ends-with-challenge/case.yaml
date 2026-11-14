@@ -1,0 +1,40 @@
+schema_version: "1.0"
+name: grill-ends-with-challenge
+description: When nothing is open, grill writes the decision log to the plan, challenges it by path, and asks the findings as a Challenge round before listing the decisions.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: >-
+    Q11 to Q14 yes. That covers everything I wanted to decide about this.
+  max_turns: 30
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: writes-the-plan
+    type: tool_used
+    tool: Write
+    input_match: 'docs/work/[^/"]+/plan\.md'
+    min: 1
+  - name: challenges-the-plan-by-path
+    type: tool_used
+    tool: Skill
+    input_match: 'challenge[\s\S]*docs/work/[^/"]+/plan\.md'
+    min: 1
+  - name: asks-a-challenge-round
+    type: regex
+    pattern: '❓ \*\*Q(1[1-9]|[2-9]\d) – Challenge:[\s\S]*➡️'
+  - name: closing-line
+    type: regex
+    pattern: 'list the decisions for you to confirm once nothing is open'
+  - name: does-not-list-yet
+    type: llm
+    criteria: >-
+      The response passes if it ends by asking the user to answer numbered questions, each
+      with a recommended answer, rather than presenting a final list of decisions for the
+      user to confirm.
+  - name: writes-no-code
+    type: tool_used
+    tool: Write
+    input_match: '\.py'
+    min: 0
+    max: 0
