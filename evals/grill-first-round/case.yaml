@@ -1,0 +1,30 @@
+schema_version: "1.0"
+name: grill-first-round
+description: A first grilling round is a numbered set of questions with recommended answers, and nothing gets built.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /grill add SMS notifications when an order ships
+  max_turns: 10
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: round-format
+    type: regex
+    pattern: '\*\*Q1\b[\s\S]*➡️[\s\S]*\*\*Q2\b[\s\S]*➡️'
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
+  - name: waits
+    type: llm
+    criteria: >-
+      The response ends by putting its questions to the user and waiting for the answers.
+      Recommended answers that mention how something could be built are fine.
+      It fails only if the response goes past the questions: it answers them itself and
+      carries on, starts writing or changing code, or says it is now going to build.
