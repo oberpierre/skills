@@ -1,0 +1,25 @@
+schema_version: "1.0"
+name: grill-maps-onto-existing
+description: Grilling maps an idea worded as something new onto the mechanism the repository already has.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /grill we need an SMS service that texts customers when their order ships
+  max_turns: 10
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: names-the-bus
+    type: regex
+    pattern: 'OrderShipped|register_channels|subscri'
+  - name: maps-before-inventing
+    type: llm
+    criteria: >-
+      The repository already reacts to a shipped order: ship_order publishes an OrderShipped
+      event on an internal Bus, and channels/registry.py subscribes a Mailer to it, which
+      messages the customer according to their contact_prefs. Customers already have an
+      optional phone field. The response passes if it presents SMS as another channel
+      subscribed to the existing events in the same way as the Mailer, and if every new
+      mechanism it proposes beyond that (a separate service, queue, worker, trigger or event
+      source) is explicitly marked as a departure from the existing structure, with a reason.
+      It fails if it proposes a separate SMS service or pipeline as the default, or never
+      relates the idea to the existing bus and Mailer.

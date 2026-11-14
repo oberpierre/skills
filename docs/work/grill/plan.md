@@ -9,8 +9,8 @@ The skill that interviews the user until every decision about a feature is made,
 | Slice | Behaviour | Acceptance cases | Blocked by | Status | Base | Head |
 |---|---|---|---|---|---|---|
 | G1 | Interviews in rounds, each question with a recommended answer, then waits, and writes no code | `grill-first-round` | none | done | `5a254d5` | `214576b` |
-| G2 | Never asks the user what the repository answers | `grill-first-round` | G1 | done, no skill text | `214576b` | |
-| G3 | Maps the idea onto existing concepts first, and flags anything new as a deviation | `grill-maps-onto-existing` | G1 | todo | | |
+| G2 | Never asks the user what the repository answers | `grill-first-round` | G1 | done, no skill text | `214576b` | `f16dfaa` |
+| G3 | Maps an idea worded as something new onto the mechanism the repository already has | `grill-maps-onto-existing` | G1 | done, no skill text | `2df2ec3` | |
 | G4 | Asks only questions whose prerequisites are settled, and builds each round from the last one's answers | `grill-second-round` | G1 | todo | | |
 | G5 | Records settled terms in `GLOSSARY.md`, and decisions that meet the bar as ADRs | `grill-records-terms` | G1 | todo | | |
 | G6 | Ends with a challenge of the plan, whose findings become the last round | `grill-ends-with-challenge` | G5, the `challenge` skill | todo | | |
@@ -28,6 +28,9 @@ G2 to G5 each extend the same `SKILL.md`, and nothing else connects them, so the
 - G1 measured: with the plugin 1.0 on every run, without it 0.75 (it never used the round format), a lead of 0.25. A session cost $0.095 to $0.11 and took 22 to 29 seconds, a judge call about $0.0007, and the full case (three runs in each arm) $0.62 in 2.5 minutes.
 - A case is a `case.yaml` with `schema_version: "1.0"`. Its `scaffold_script` must name a file inside the case folder, so each case has a one-line `scaffold.sh` calling `evals/fixtures/scaffold-notifier.sh`, which runs in the session's working directory.
 - In the run without the plugin, `/grill` arrives as plain text. Claude says the skill is missing and answers the request directly.
+
+- G3 has its own fixture, `eventbus`: 20 files where shipping publishes an `OrderShipped` event that a `Mailer` subscribes to through `channels/registry.py`, and nothing is named "notification". The prompt asks for "an SMS service". A planted control told to propose a standalone service scored 0 on both graders, so the case can fail.
+- G3 adds no skill text. On G1's skill, all three runs named the bus and proposed SMS as another subscriber, the judge passing each 3 to 0, for $0.48. The case is kept as a pin. Its lead over the run without the plugin is measured when the skill is complete. Twenty files is still far from the size of repository where the failure it guards against was seen, which this case cannot reproduce.
 
 ## Open
 
