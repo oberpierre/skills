@@ -1,0 +1,16 @@
+{
+  "name": "oberpierre",
+  "owner": {
+    "name": "oberpierre",
+    "url": "https://github.com/oberpierre"
+  },
+  "description": "oberpierre's agent skills, as an installable Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "oberpierre-skills",
+      "source": "./",
+      "description": "Agent skills for building software in small, reviewed steps: you make the decisions, the agent builds one behaviour per commit.",
+      "category": "engineering"
+    }
+  ]
+}

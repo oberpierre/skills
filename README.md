@@ -47,6 +47,8 @@ Run `/setup` once in each repository. If a skill name clashes with another, `/ob
 
 ## Developing the skills
 
+After cloning, run `scripts/gate.sh --install` once, so the gate runs before every commit. Git does not version hooks, which is why the step exists. The gate needs the `claude` CLI, either on your `PATH` or inside the VS Code extension.
+
 Point a project at your working copy by adding this to its `.claude/settings.local.json`:
 
 ```json

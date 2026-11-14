@@ -1,0 +1,14 @@
+{
+  "name": "oberpierre-skills",
+  "version": "0.1.0",
+  "description": "Agent skills for building software in small, reviewed steps: you make the decisions, the agent builds one behaviour per commit.",
+  "author": {
+    "name": "oberpierre",
+    "url": "https://github.com/oberpierre"
+  },
+  "homepage": "https://github.com/oberpierre/skills",
+  "repository": "https://github.com/oberpierre/skills",
+  "license": "MIT",
+  "keywords": ["engineering", "skills", "grilling", "tdd", "atomic-commits"],
+  "skills": []
+}
