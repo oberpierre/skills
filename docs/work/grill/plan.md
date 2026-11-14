@@ -12,7 +12,7 @@ The skill that interviews the user until every decision about a feature is made,
 | G2 | Never asks the user what the repository answers | `grill-first-round` | G1 | done, no skill text | `214576b` | `f16dfaa` |
 | G3 | Maps an idea worded as something new onto the mechanism the repository already has | `grill-maps-onto-existing` | G1 | done, no skill text | `2df2ec3` | `b7f381a` |
 | G4 | Asks only questions whose prerequisites are settled, builds each round from the last one's answers, and never builds during the session | `grill-second-round` | G1 | done | `b7f381a` | `8592f84` |
-| G5 | Records settled terms in `GLOSSARY.md`, and decisions that meet the bar as ADRs | `grill-records-terms` | G1 | done | `38548da` | |
+| G5 | Records settled terms in `GLOSSARY.md`, and decisions that meet the bar as ADRs | `grill-records-terms` | G1 | done | `38548da` | `d83ca22` |
 | G6 | Ends with a challenge of the plan, whose findings become the last round | `grill-ends-with-challenge` | G5, the `challenge` skill | todo | | |
 
 G2 to G5 each extend the same `SKILL.md`, and nothing else connects them, so their order is the table's. G6 waits for `challenge`, which is built after G5.
@@ -43,7 +43,11 @@ G2 to G5 each extend the same `SKILL.md`, and nothing else connects them, so the
 - With the skill visible, G4's round 2 also recorded, writing three ADRs and a glossary entry from one round of answers. One of the three was for reading secrets from environment variables, an industry default. The bar "cross-feature, hard to reverse or surprising" lets nearly every decision through, which the next slice addresses.
 - G5 and the fixes it uncovered cost about $3.20, bringing the skill to about $8.10. Debugging the harness cost more than the skill did.
 
+- The ADR bar now requires all three conditions: hard to reverse, surprising to a later reader, and a real trade-off. Red on the old bar, every G4 run wrote two or three ADRs, two of them one for reading credentials from environment variables. On the new bar every run wrote one, for opt-out, while G5 still wrote its one for the protocol change. ADR 0007 states the bar and its history.
+- G4 now forbids writing or editing code rather than any file, since recording legitimately writes. Its check against an ADR for the credentials default is a `tool_used` pattern on the written content, not a judge: the `llm` version failed a sound opt-out ADR unanimously, its criterion being a double negative. The pattern was first checked offline against saved traces, matching exactly the two credentials ADRs of the red run and nothing in the green ones.
+- This slice cost $1.62, bringing the skill to about $9.70.
+
 ## Open
 
-- Review the 0.67 threshold after the first full runs, once the judge's noise is visible.
+- Review the 0.67 threshold, once the judge's noise is visible. `reasks-nothing-settled` has failed one run of three, three times, on transcripts that read as correct, so its criterion is the first candidate for a rewrite or a deterministic replacement.
 - A `gate.yml` workflow on push to `main` and on pull requests into `main` arrives with the slice that publishes the repository, so its first run happens on GitHub.

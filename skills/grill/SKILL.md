@@ -48,7 +48,7 @@ One way of reaching a customer, such as email or SMS.
 _Avoid_: medium, transport
 ```
 
-**An ADR.** When a decision is cross-feature, hard to reverse or surprising to a later reader, write it to `docs/adr/NNNN-<slug>.md`, numbered one past the highest there. Its title states the decision, and one paragraph gives the context and the reason the user gave. Every other decision stays in the conversation, for the plan to record.
+**An ADR.** When a decision is hard to reverse, would surprise a later reader and was a real trade-off between alternatives, all three, write it to `docs/adr/NNNN-<slug>.md`, numbered one past the highest there. Its title states the decision, and one paragraph gives the context and the reason the user gave. Every other decision stays in the conversation, for the plan to record.
 
 ## Ending
 
