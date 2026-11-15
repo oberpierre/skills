@@ -12,11 +12,11 @@ graders:
   - name: writes-the-table
     type: regex
     target: {source: file, path: docs/work/sms/plan.md}
-    pattern: '## Slices\s+\| *Slice *\| *Behaviour *\| *Acceptance test *\| *Blocked by *\| *Status *\| *Base *\| *Head *\| *Note *\|\s*\|[-| ]+\|\s*\| *S1 *\|[^\n]*\| *todo *\|'
+    pattern: '## Slices\s+\| *Slice *\| *Behaviour *\| *Acceptance test *\| *Blocked by *\| *Status *\| *Note *\|\s*\|[-| ]+\|\s*\| *S1 *\|[^\n]*\| *todo *\|'
   - name: every-slice-todo
     type: regex
     target: {source: file, path: docs/work/sms/plan.md}
-    pattern: '^\| *S\d+ *\|(?![^\n]*\| *todo *\| *\| *\| *\|\s*$)'
+    pattern: '^\| *S\d+ *\|(?![^\n]*\| *todo *\| *\|\s*$)'
     flags: m
     match: not_contains
   - name: slices-before-the-log

@@ -6,10 +6,10 @@ Text customers when their order ships, alongside the existing email.
 
 ## Slices
 
-| Slice | Behaviour | Acceptance test | Blocked by | Status | Base | Head | Note |
-|---|---|---|---|---|---|---|---|
-| S1 | When an order ships, a customer with a phone number gets a text through Twilio from the configured `from_number` | `test_texts_the_customer`, through `on_order_shipped` with an `SmsNotifier` in its notifiers | none | done | `3f2a9c1` | `8d41e07` | |
-| S2 | A customer without a phone number gets no text, and the other notifiers still hear about the order | `test_no_phone_no_text`, through `on_order_shipped` with `phone_for` returning `None` | S1 | todo | | | |
+| Slice | Behaviour | Acceptance test | Blocked by | Status | Note |
+|---|---|---|---|---|---|
+| S1 | When an order ships, a customer with a phone number gets a text through Twilio from the configured `from_number` | `test_texts_the_customer`, through `on_order_shipped` with an `SmsNotifier` in its notifiers | none | done | |
+| S2 | A customer without a phone number gets no text, and the other notifiers still hear about the order | `test_no_phone_no_text`, through `on_order_shipped` with `phone_for` returning `None` | S1 | todo | |
 
 ## Decision log
 

@@ -10,7 +10,7 @@ execution:
 graders:
   - name: plan-format-columns
     type: regex
-    pattern: '\|\s*Slice\s*\|\s*Behaviour\s*\|\s*Acceptance test\s*\|\s*Blocked by\s*\|\s*Status\s*\|\s*Base\s*\|\s*Head\s*\|\s*Note\s*\|'
+    pattern: '\|\s*Slice\s*\|\s*Behaviour\s*\|\s*Acceptance test\s*\|\s*Blocked by\s*\|\s*Status\s*\|\s*Note\s*\|'
   - name: ids-and-status
     type: regex
     pattern: '\|\s*S1\s*\|[^\n]*\|\s*todo\s*\|[\s\S]*\|\s*S2\s*\|[^\n]*\|\s*todo\s*\|'

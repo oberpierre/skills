@@ -23,15 +23,15 @@ A slice is one behaviour built end to end and pinned by an acceptance test, smal
 Each slice is one row of this table:
 
 ```
-| Slice | Behaviour | Acceptance test | Blocked by | Status | Base | Head | Note |
-|---|---|---|---|---|---|---|---|
-| S1 | <the observable behaviour, in one sentence> | `<test name>`, through <the seam it is tested through> | none | todo | | | |
+| Slice | Behaviour | Acceptance test | Blocked by | Status | Note |
+|---|---|---|---|---|---|
+| S1 | <the observable behaviour, in one sentence> | `<test name>`, through <the seam it is tested through> | none | todo | |
 ```
 
 - **Slice** is the id, `S1`, `S2`… in build order.
 - **Acceptance test** names the test and the seam, the public boundary it observes the behaviour through. Its code is written when the slice is built.
 - **Blocked by** lists slice ids, or `none`.
-- **Status** is `todo`, `done` or `rework`. A new slice is `todo`, and Base, Head and Note stay empty.
+- **Status** is `todo`, `done` or `rework`. A new slice is `todo`, and its Note stays empty.
 
 ## Proposing
 
