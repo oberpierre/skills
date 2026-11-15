@@ -10,7 +10,7 @@ The skill that attacks a plan or a diff from a context that never saw it being m
 |---|---|---|---|---|---|---|
 | C1 | A plan challenge reports a plan that builds a second mechanism beside an existing one, as a finding with kind, location and evidence, and edits nothing | `challenge-plan-second-mechanism` | none | done | `b23618a` | `251ccfa` |
 | C2 | A plan challenge reaches its verdict without the caller's conversation, even one that argued for the flaw | `challenge-ignores-the-conversation` | C1 | done, no skill text | `251ccfa` | `17f033b` |
-| C3 | The diff lens judges a range's diff against the agent file, the `standards` key and the smell baseline in `CODE.md` | `challenge-diff-against-standards` | C1, a Bash-capable eval environment | done | `788cc3d` | |
+| C3 | The diff lens judges a range's diff against the agent file, the `standards` key and the smell baseline in `CODE.md` | `challenge-diff-against-standards` | C1, a Bash-capable eval environment | done | `69cefdc` | `970336e` |
 | C4 | `grill` ends by writing the decision log to the plan, calling `challenge` on it, and asking its findings as a `Challenge:` round before listing the decisions | `grill-ends-with-challenge` | C1 | done | `17f033b` | `38a8cdc` |
 
 C4 is G6 of the grill plan, moved here because it depends on this skill. The plan lens, and the plan attacks that need slices (whether a proof can pass while the defect survives, what falls between slices), wait for `slice` and `build`, whose plan format does not exist yet.
