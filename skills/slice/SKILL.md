@@ -12,7 +12,7 @@ metadata:
 
 # Slice: $ARGUMENTS
 
-Turn the decisions in a feature's plan into slices. The argument's first word is the plan's path, such as `docs/work/<feature>/plan.md`. Read its decision log, and read the code wherever a decision names something that already exists.
+Turn the decisions in a feature's plan into slices. The argument's first word is the plan only when it is a path or names a plan under `docs/work/`, and the rest is a request, such as `squash S1 and S2`. With no plan named, use the only plan under `docs/work/`, and when there are several or none, ask which plan to slice and stop, even if the request seems to point at one. Read the plan's decision log, and read the code wherever a decision names something that already exists.
 
 You change no code, and you write nothing until the user approves the slices.
 
