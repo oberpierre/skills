@@ -1,0 +1,56 @@
+# slice
+
+**Branch:** `feature/slice`
+
+The skill that turns a feature's decisions into a plan of ordered vertical slices, each with its acceptance test, tracked in the plan and optionally mirrored to GitHub Issues (ADR 0007). It is built on Matt Pocock's `to-tickets`, is user-invoked, and stays under about 100 lines (ADR 0008).
+
+## Slices
+
+| Slice | Behaviour | Acceptance test | Blocked by | Status | Base | Head | Note |
+|---|---|---|---|---|---|---|---|
+| S1 | On a plan with a decision log and no slices, `/slice` proposes a slices table in the plan format and asks the user to approve it or say what to change, writing nothing | `slice-proposes-a-table`, through `/slice` in a session: its reply and its tool calls | none | done | `42fb219` | | |
+| S2 | Once the user approves the proposed table, `slice` writes it into the plan under `## Slices`, every slice `todo`, and leaves the decision log as it was | `slice-writes-the-approved-table`, through `/slice` resumed after a recorded proposal: the plan file | S1 | todo | | | |
+| S3 | On a plan that already has slices, `slice` keeps the `done` rows as they are and numbers new slices on from the last id | `slice-keeps-done-slices`, through `/slice` in a session: its reply and its tool calls | S1 | todo | | | |
+
+These are the slices cut by hand. Writing an approved table is two slices because approval is a second turn, which an eval case reaches only by resuming a recording of S1's proposal. Each case runs with `claude plugin eval . --case '<case>' --allow-tools Write Edit --scaffold --trust-plugin --no-publish --threshold 0.67`. `/slice` cuts the remaining slices into this table.
+
+## Decision log
+
+- The plan file stays the single source of truth, and GitHub Issues only mirrors its slices, as ADR 0007 says. `build` rewrites commit ranges after squashes, and two stores that both hold that state would disagree. Rejected: choosing either the plan or the tracker.
+- When `.agents/config.yml` or its `tracker` key is missing, `slice` uses the local Markdown default. The known values are `markdown` and `github`. When the file is not valid YAML, or `tracker` is not one of those strings, it stops and reports. A missing key has a documented default, whereas a broken file or an unknown value is a mistake that would otherwise go unnoticed, and the values are a schema `setup` will also write.
+- The argument is `/slice [plan] [request]`. The first word is the plan only when it names a plan under `docs/work/` or is a path, and the rest is a free-text request such as `squash S1 and S2`. Without a plan it uses the only plan under `docs/work/`, and asks when there are several or none. That matches how the other skills take arguments, and one plan per branch is the usual case. Rejected: a `<slug>: <request>` separator and a `--plan` flag, which no skill here uses.
+- The slices table keeps the columns of the challenge plan, with "Acceptance cases" renamed to "Acceptance test" and a `Note` column added, empty unless there is something to say. The ids are `S1`, `S2`… as ADR 0004 uses them, and the statuses are `todo`, `done` and `rework`. The format has already carried one feature. `rework` was added once the rework path needed it, and the note holds what a rework is to do, which `build` reads beside the rest of the row, so Status keeps to its three values.
+- The Behaviour column holds the observable behaviour in one sentence, and the Acceptance test column holds the test's name and the seam it is tested through. `build` writes the test code. Each column has a job of its own, and the test's name ties the slice to its proof.
+- When an existing table has a missing column, an unknown status or a duplicate id, `slice` stops and reports. A Blocked by entry that is not a slice id stays as text in the issue body, with no blocking link. Normalising a hand-edited plan could change what the user approved.
+- `slice` shows the proposed table and asks the user to approve it or say what to change, and writes the table only once the user approves. Only a decision the slicing raises is asked as a numbered question with a recommendation, in `slice`'s own words, and it goes into the decision log. Approving the slices is one of the user's three moments in the workflow, and approving a table needs no round format. Rejected: copying `grill`'s round format, which ADR 0008 keeps in `grill` and a copy would let drift.
+- `slice` suggests a branch name `<prefix>/<slug>`, with the prefix one of `feature`, `bugfix` and `improvement` picked from what the decisions describe. The name is approved in the slicing round and written to the plan's `**Branch:**` line, and whatever the user approves is the name. There is no configuration key until a repository needs other prefixes. The prefixes are a generic suggestion rather than a repository specific under ADR 0008, since any name the user approves is used.
+- `slice` neither creates nor switches branches. `build` reads the plan's `**Branch:**` line: it continues on that branch, creates it from the default branch and switches to it when on the default branch, and stops and asks on any other branch. The default branch is read from `origin/HEAD` rather than assumed to be `main`, because some repositories use `master`. Slicing changes no code, and creating the branch where the first change happens leaves no abandoned empty branch. Rejected: `slice` creating the branch. Building on an unrelated branch would mix two features into one pull request.
+- When the plan already has slices, `slice` leaves the `done` ones as they are and proposes changes only to those still `todo`. Built slices have commit ranges that describe history.
+- `slice` changes a `done` slice only when the request names it, such as a request to squash S1 and S2. It proposes the change as a round, marks each affected slice `rework` with a one-line note of what is to be done, ends by naming the `/build` command to run, and runs no git command that rewrites history. The user approves the shape before built commits are rewritten, and no new skill or skill-to-skill call is needed. Rejected: declining rework requests, and a separate rework skill.
+- Rework applies only to slices whose commits are still on the unmerged feature branch. For merged work, `slice` says a new plan is needed. Rewriting commits on `main` rewrites shared history, and a fix there is its own `bugfix/` or `improvement/` feature.
+- `build` closes the plan only once the user has reviewed and approved the last slice, as amended in ADR 0007. Review is when rework is found, and the plan must still exist then. Rejected: rebuilding the plan from the branch's history, which would be a second mechanism.
+- The steps run in this order: propose the slices, approval, table written, `challenge` on the plan, findings asked as a round, answers recorded, and only then, with the GitHub tracker, issues created. Issues created before the challenge would need editing or closing whenever a finding changes a slice.
+- Each slice becomes one issue, with the behaviour as its title, the acceptance test, the feature slug and the slice id as its body, and GitHub's own blocking links. The plan gains an `Issue` column with the issue number. The issue mirrors the slice and not the decisions (ADR 0007). The `Issue` column and the pull request carry the links in both directions, so the body names no branch or plan path, which would stop resolving once the plan is closed.
+- When the mirror is first switched on, every slice gets an issue, and a `done` slice's issue is closed at once with a comment naming its Base and Head commits. A mirror missing the done slices would look like missing work, and the comment ties each issue to the commits that did it. Rejected: issues for `todo` slices only.
+- `slice` keeps the mirror in step whenever it changes slices, finding issues only by the plan's `Issue` column. A changed row's issue is edited in place. When two slices merge, the first keeps its issue and the other's is closed as "not planned" with a comment pointing to the first. A reworked slice's issue is reopened. Rows the run did not change are left alone, even if their issues were edited on GitHub. A lookup by number cannot pick the wrong issue, and touching only the changed rows means no issue is closed and created afresh.
+- With `tracker: github`, `slice` stops and reports when `gh` is missing or not logged in, instead of falling back to Markdown alone. A silent fallback leaves the user believing the issues exist.
+- `slice` ends by calling `challenge` on the sliced plan, and this feature adds two slice-level attacks to `PLAN.md`: whether a proof can pass while the defect survives, and what falls between slices. Both were deferred only for lack of a slice format. Each gets an eval case run red first, and is added only if the case fails without it.
+- The Markdown path is pinned by eval cases. The GitHub mirror is proven by real runs on this feature's own plan once its mirror slices are built: `/slice` with `tracker: github` creates the issues, and a later run that changes slices proves editing in place. An eval's sandbox has no network and no credentials, and proving the mirror here lets the feature close on its own proof. Rejected: waiting for the `build` feature's plan.
+- This plan is sliced in two halves. The first slices are cut by hand: `slice` writing an approved table into a plan that has none, and adding slices to a plan that already has some. `/slice` then cuts the remaining slices into this plan, and the whole plan is challenged again for the slice-level attacks. The second half tests `slice` on a feature that gains slices partway through, which is the common case. Rejected: slicing the whole plan by hand.
+- One eval case pins the rework path: a plan with `done` slices and a request naming one, checking that `slice` proposes the change and runs no git command that rewrites history. The exception is the one place `slice` could damage built work.
+
+- S1 ran red with no `slice` skill at 0.29, 0.29 and 0.43. Unprompted, Claude wrote its own slices into the plan without asking, in a table of its own columns. With the skill, 1.0, 1.0 and 0.86, against 0.29 on every run without it. The one miss was a judge splitting on a reply that ended by asking for approval after raising two open questions of its own, which the slice-level question round will cover. S1 cost $1.60.
+
+## For `build`
+
+Requirements this feature places on `build`, to be grilled with it:
+
+- It reads the branch from the plan's `**Branch:**` line and handles it as decided above.
+- It carries out a `rework` slice from its note (squash, revert or rebuild) behind a green gate, re-records Base and Head, challenges the slice, and stops for review.
+- It closes a slice's issue, by the plan's `Issue` column, when the slice is done.
+- It reads the default branch from `origin/HEAD`, and closes the plan only once the user has approved the last slice (ADR 0007).
+
+## Carried forward from `challenge`
+
+- The plan lens of a code challenge, which names for each acceptance criterion the assertion that pins it.
+- Which lines of `PLAN.md` change what a plan challenge finds. Only the second mechanism has a case, and it was found without its line.
