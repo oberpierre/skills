@@ -47,7 +47,7 @@ One behaviour built end to end and pinned by an acceptance test, delivered as on
 _Avoid_: task, ticket, story
 
 **Acceptance test**:
-The test that shows a slice's behaviour works, named in the plan before the slice is built.
+The test that shows a slice's behaviour works, named in the plan by its name and the seam it is tested through before the slice is built, beside the slice's behaviour in one sentence. Its code is written when the slice is built.
 
 **Seam**:
 The public boundary a test observes behaviour through, without reaching inside.
