@@ -20,11 +20,10 @@ graders:
       The response ends by showing a proposed table of slices and asking the user to approve
       it or say what to change, and waits for that answer.
   - name: names-test-and-seam
-    type: llm
-    criteria: >-
-      Each proposed slice states one observable behaviour, and its acceptance test gives a
-      test's name together with the public boundary it is tested through, such as
-      on_order_shipped, SmsNotifier.send or the Notifier protocol.
+    type: regex
+    pattern: '^\| *S\d+ *\|(?! *[^|\n]*\| *`[^`\n]+`,? through [^|\n]+\|)'
+    flags: m
+    match: not_contains
   - name: reads-the-plan
     type: tool_used
     tool: Read
