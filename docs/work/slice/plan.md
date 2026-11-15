@@ -9,7 +9,7 @@ The skill that turns a feature's decisions into a plan of ordered vertical slice
 | Slice | Behaviour | Acceptance test | Blocked by | Status | Base | Head | Note |
 |---|---|---|---|---|---|---|---|
 | S1 | On a plan with a decision log and no slices, `/slice` proposes a slices table in the plan format and asks the user to approve it or say what to change, writing nothing | `slice-proposes-a-table`, through `/slice` in a session: its reply and its tool calls | none | done | `42fb219` | | |
-| S2 | Once the user approves the proposed table, `slice` writes it into the plan under `## Slices`, every slice `todo`, and leaves the decision log as it was | `slice-writes-the-approved-table`, through `/slice` resumed after a recorded proposal: the plan file | S1 | todo | | | |
+| S2 | Once the user approves the proposed table, `slice` writes it into the plan under `## Slices`, every slice `todo`, and leaves the decision log as it was | `slice-writes-the-approved-table`, through `/slice` resumed after a recorded proposal: the plan file | S1 | done | `52c819b` | | |
 | S3 | On a plan that already has slices, `slice` keeps the `done` rows as they are and numbers new slices on from the last id | `slice-keeps-done-slices`, through `/slice` in a session: its reply and its tool calls | S1 | todo | | | |
 
 These are the slices cut by hand. Writing an approved table is two slices because approval is a second turn, which an eval case reaches only by resuming a recording of S1's proposal. Each case runs with `claude plugin eval . --case '<case>' --allow-tools Write Edit --scaffold --trust-plugin --no-publish --threshold 0.67`. `/slice` cuts the remaining slices into this table.
@@ -40,6 +40,7 @@ These are the slices cut by hand. Writing an approved table is two slices becaus
 - One eval case pins the rework path: a plan with `done` slices and a request naming one, checking that `slice` proposes the change and runs no git command that rewrites history. The exception is the one place `slice` could damage built work.
 
 - S1 ran red with no `slice` skill at 0.29, 0.29 and 0.43. Unprompted, Claude wrote its own slices into the plan without asking, in a table of its own columns. With the skill, 1.0, 1.0 and 0.86, against 0.29 on every run without it. The one miss was a judge splitting on a reply that ended by asking for approval after raising two open questions of its own, which the slice-level question round will cover. S1 cost $1.60.
+- S2 resumes S1's proposal from a green run of `slice-proposes-a-table`, answered with "Approved, go ahead.", and grades the plan file. Red on the S1 text, every run wrote the table in the plan format, every slice `todo` and the decision log intact, but appended it after the log, scoring 0.80. The one line placing `## Slices` before `## Decision log` took it to 1.0 on every run. As a resumed case it measures no lead. S2 cost $0.71.
 
 ## For `build`
 

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+"$(dirname "$0")/../fixtures/scaffold.sh" notifier
+mkdir -p docs/work/sms && cp "$(dirname "$0")/../slice-proposes-a-table/plan.md" docs/work/sms/plan.md
+git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "Plan SMS notifications"

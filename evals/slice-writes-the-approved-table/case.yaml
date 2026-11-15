@@ -1,0 +1,35 @@
+schema_version: "1.0"
+name: slice-writes-the-approved-table
+description: Once the user approves the proposed table, slice writes it into the plan under Slices, every slice todo, and leaves the decision log as it was.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: Approved, go ahead.
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: writes-the-table
+    type: regex
+    target: {source: file, path: docs/work/sms/plan.md}
+    pattern: '## Slices\s+\| *Slice *\| *Behaviour *\| *Acceptance test *\| *Blocked by *\| *Status *\| *Base *\| *Head *\| *Note *\|\s*\|[-| ]+\|\s*\| *S1 *\|[^\n]*\| *todo *\|'
+  - name: every-slice-todo
+    type: regex
+    target: {source: file, path: docs/work/sms/plan.md}
+    pattern: '^\| *S\d+ *\|(?![^\n]*\| *todo *\| *\| *\| *\|\s*$)'
+    flags: m
+    match: not_contains
+  - name: slices-before-the-log
+    type: regex
+    target: {source: file, path: docs/work/sms/plan.md}
+    pattern: '## Slices[\s\S]*## Decision log'
+  - name: keeps-the-decision-log
+    type: regex
+    target: {source: file, path: docs/work/sms/plan.md}
+    pattern: '## Decision log\n\n- Texts go out through Twilio, as `config/channels.toml` already provisions, with the sender number from `from_number`\.\n- SMS is a `SmsNotifier` beside `EmailNotifier`, implementing the existing `Notifier` protocol, so `on_order_shipped` needs no change of its own\.\n- The phone number comes from a `phone_for\(customer_id\)` function passed to `SmsNotifier`\.\n- A customer without a phone number gets no text, and nothing fails\.\n- A failed text is logged and does not stop the other notifiers\.'
+  - name: writes-no-code
+    type: tool_used
+    tool: Write
+    input_match: '\.py'
+    min: 0
+    max: 0

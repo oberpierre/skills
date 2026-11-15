@@ -36,3 +36,7 @@ Each slice is one row of this table:
 ## Proposing
 
 Show the proposed table, with a line under it for anything a reader of the table would ask about, such as why two behaviours share a slice. Then ask the user to approve it or say what to change, and stop. Write nothing in this step.
+
+## Writing
+
+Once the user approves, write the table into the plan under `## Slices`, placed before `## Decision log`, and leave the rest of the plan as it was.
