@@ -2,7 +2,7 @@
 
 Each feature has a plan at `docs/work/<feature>/plan.md`, holding its slices, their status and commit ranges, and a decision log. A decision goes into that log by default. It is promoted to an ADR in `docs/adr/` only when all three hold: it is hard to reverse, it would surprise a later reader, and it was the result of a real trade-off between alternatives.
 
-The plan is committed on the feature branch with the first slice, and it is the source of truth for `build` whichever tracker is configured. When the last slice is done, `build` closes it. It checks each logged decision once more and promotes the ones that now meet the bar for an ADR. It writes the rest into the pull request body under `## Decisions`, or into the merge commit's message when there is no pull request. Then it deletes the plan in a final commit, `. d Close the <feature> plan`. The plan stays readable in the branch's history.
+The plan is committed on the feature branch with the first slice, and it is the source of truth for `build` whichever tracker is configured. When the last slice is done and the user has reviewed and approved it, `build` closes it. It checks each logged decision once more and promotes the ones that now meet the bar for an ADR. It writes the rest into the pull request body under `## Decisions`, or into the merge commit's message when there is no pull request. Then it deletes the plan in a final commit, `. d Close the <feature> plan`. The plan stays readable in the branch's history.
 
 `GLOSSARY.md` holds the project's domain language and nothing else: one entry per term, with the words to avoid. It is committed. A project that wants it local adds it to `.gitignore` by hand, and no configuration key exists for that.
 
@@ -25,3 +25,5 @@ Local Markdown works offline and in repositories that keep agent material out of
 ## History
 
 **2026-11-14.** The bar used to be "cross-feature, hard to reverse or surprising to a later reader", any one sufficing. An eval of `grill` showed it was too loose: from one round of ten answers, the agent wrote two or three ADRs, among them one for reading credentials from environment variables, which is ordinary practice. With all three conditions required, it wrote at most one.
+
+**2026-11-15.** `build` used to close the plan as soon as the last slice was done. A challenge of the `slice` plan showed that this deletes the plan before the user's review of a whole feature, which is when rework is found, so a rework request through `slice` would find no plan. The close now waits for the user's approval.
