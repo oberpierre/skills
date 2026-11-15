@@ -39,7 +39,7 @@ A body of work with one plan, one branch and one pull request.
 _Avoid_: epic, project
 
 **Plan**:
-The file holding a feature's slices, their status and commit ranges, and its decision log. It is deleted when the feature is done.
+The file holding a feature's slices, their status, and its decision log. It is deleted when the feature is done.
 _Avoid_: spec, ticket list
 
 **Slice**:

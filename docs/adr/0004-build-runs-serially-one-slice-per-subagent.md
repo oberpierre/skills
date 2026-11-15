@@ -4,7 +4,7 @@
 
 The argument decides the scope. `/build S3` builds one slice, has it challenged, applies the fixes and stops for the user's review. `/build <feature>` builds every remaining slice, challenges each, runs one challenge over the whole branch at the end and stops once. With no argument, `build` lists the slices with their status and suggests the next one.
 
-The plan records a `Base` and a `Head` commit for each slice, so `git log -p <base>..<head>` shows exactly one slice. When a rewrite crosses slices, `build` re-records both by matching commit subjects. The range of a whole feature starts at `git merge-base main HEAD`.
+No commit range is recorded. `build` keeps the commit a slice starts from in its own context and challenges `<start>..HEAD` once the slice is built. It sets the slice's row in the plan to `done` in the slice's own last commit, so a slice found later runs from the commit that marked the slice before it `done` to the last commit that marked it `done`, and a rework rewrites a slice in place. The range of a whole feature starts at the merge-base with the default branch.
 
 ## Why
 
@@ -12,7 +12,7 @@ Parallel slices in one working tree break the attestation a commit carries. Each
 
 A fresh subagent per slice keeps each slice's context free of the previous one's exploration, and it keeps the orchestrating session small enough to stay sharp across a whole feature.
 
-Recording commit ranges in the plan rather than in commit trailers keeps messages clean, since git can already answer the question when given two commits.
+Serial building keeps each slice's commits together, so git can answer which commits are a slice's without a record. Recorded hashes went stale on every squash or rebase and took commits that did nothing else, and a `Slice:` trailer would name a slice in a plan that is deleted once the feature closes.
 
 ## Considered options
 
