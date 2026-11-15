@@ -1,0 +1,40 @@
+{
+  // Where the evals run. An eval sandboxes its whole session, and on a macOS host the
+  // sandbox blocks the temp folder that /usr/bin/git's launcher writes to, so no git
+  // command works there. Linux git has no launcher.
+  "name": "oberpierre-skills",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+  // The eval sandbox is bwrap, which needs an unprivileged user namespace and a fresh /proc
+  // in it. Docker's default seccomp profile blocks unshare, and its masking of /proc paths
+  // makes the kernel refuse the new proc mount, so without both options every Bash command
+  // and every !`…` line in a skill fails inside an eval. The container holds nothing but
+  // this repository and is rebuilt at will, so loosening its isolation is accepted.
+  "runArgs": ["--security-opt", "seccomp=unconfined", "--security-opt", "systempaths=unconfined"],
+  // An eval roots its sandbox in TMPDIR, and its sandbox denies writes to all of /tmp. Under
+  // bwrap that deny wins over the allows inside it, so an eval rooted in /tmp can write
+  // nowhere, not even its working directory. /evaltmp is outside every path it denies.
+  // remoteEnv, not containerEnv: containerEnv applies from docker run, before
+  // onCreateCommand has made /evaltmp, and the rebuild fails on the missing folder.
+  "remoteEnv": { "TMPDIR": "/evaltmp" },
+  // bwrap is the sandbox, socat its network proxy.
+  "onCreateCommand": "sudo install -d -o vscode -g vscode -m 700 /evaltmp && sudo apt-get update && sudo apt-get install -y --no-install-recommends bubblewrap socat",
+  // Pinned to the version CI and the gate run, so evals here judge a skill by the same rules.
+  "postCreateCommand": "sudo chown vscode /home/vscode/.claude && npm install -g @anthropic-ai/claude-code@2.1.325 && scripts/gate.sh --install",
+  // Keeps the Claude login across rebuilds.
+  "mounts": [
+    "source=oberpierre-skills-claude,target=/home/vscode/.claude,type=volume"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": ["anthropic.claude-code"],
+      "settings": {
+        "claudeCode.environmentVariables": [
+          { "name": "CLAUDE_CODE_PLUGIN_DIRS", "value": "${containerWorkspaceFolder}" }
+        ]
+      }
+    }
+  }
+}
