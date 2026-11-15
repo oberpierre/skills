@@ -4,6 +4,7 @@ description: Attack a plan or a diff adversarially, from a context that never sa
 argument-hint: "[plan path | commit range]"
 context: fork
 model: opus
+allowed-tools: Bash(test:*) Bash(git log:*) Bash(git diff:*)
 metadata:
   credits:
     based-on: code-review
@@ -19,8 +20,17 @@ You review an artifact you did not make, and you never saw the conversation that
 
 The argument decides what you attack.
 
-- **A path to a plan file**, such as `docs/work/<feature>/plan.md`: a plan challenge. Read `PLAN.md` in this skill's folder for what to attack.
-- **Anything else**: say what you were given, that it is not a plan file, and stop.
+- **A path to a plan file**, such as `docs/work/<feature>/plan.md`: a plan challenge. Read `PLAN.md` in this skill's folder for what to attack, and ignore the commits and diff below.
+- **A commit range, or no argument**: a diff challenge, of the range or, with no argument, of the branch since it left `main`. Its commits and diff are below. Read `CODE.md` in this skill's folder for what to attack.
+- **Anything else**, or a range git rejected below: say what you were given and why it is neither, and stop.
+
+### Commits
+
+!`test -n "$ARGUMENTS" && git log --oneline $ARGUMENTS 2>&1 || git log --oneline main..HEAD 2>&1 || true`
+
+### Diff
+
+!`test -n "$ARGUMENTS" && git diff $ARGUMENTS 2>&1 || git diff main...HEAD 2>&1 || true`
 
 ## Evidence
 

@@ -1,0 +1,48 @@
+schema_version: "1.0"
+name: challenge-diff-against-standards
+description: A diff challenge on a commit range reports where the diff breaks the agent file, a standards file named in .agents/config.yml, and the smell baseline, and edits nothing.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /challenge HEAD~1..HEAD
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: reports-the-agent-file-rule
+    type: llm
+    criteria: >-
+      The repository's CLAUDE.md says nothing under notify/ reads environment variables. The
+      diff adds notify/sms.py, whose constructor reads os.environ["TWILIO_AUTH_TOKEN"]. The
+      response passes if one of its findings reports that this environment read breaks the
+      rule in CLAUDE.md.
+  - name: reports-the-standards-file-rule
+    type: llm
+    criteria: >-
+      docs/standards/notifiers.md, listed under standards in .agents/config.yml, says a
+      notifier's send never raises but logs the failure and returns. The diff's
+      SmsNotifier.send raises RuntimeError when the response status is not 201. The response
+      passes if one of its findings reports that this raise breaks the notifier standard in
+      docs/standards/notifiers.md.
+  - name: reports-the-unused-parameter
+    type: llm
+    criteria: >-
+      The diff's SmsNotifier.__init__ takes a retries parameter that nothing uses. The
+      response passes if one of its findings reports that retries is unused.
+  - name: states-a-kind
+    type: regex
+    pattern: '\b(defect|question)\b'
+    flags: i
+  - name: states-a-location
+    type: regex
+    pattern: 'sms\.py:\d+'
+    flags: i
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
