@@ -14,6 +14,12 @@ execution:
   max_turns: 15
   allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
 graders:
+  - name: keeps-the-recorded-grilling
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 0
+    max: 0
   - name: glossary-exists
     type: file_exists
     path: GLOSSARY.md

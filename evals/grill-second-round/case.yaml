@@ -12,6 +12,12 @@ execution:
   max_turns: 10
   allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
 graders:
+  - name: keeps-the-recorded-grilling
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 0
+    max: 0
   - name: round-format
     type: regex
     pattern: '❓ \*\*Q(1[1-9]|[2-9]\d)\b[\s\S]*➡️'

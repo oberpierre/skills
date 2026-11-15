@@ -2,7 +2,7 @@
 
 ## Matt Pocock, `mattpocock/skills`
 
-The structure of this repository and several of its skills come from [mattpocock/skills](https://github.com/mattpocock/skills), read at commit `4ae2317`. `tdd`, `pr`, `prototype`, `wait-what` and `diagnosing-bugs` are adapted from his skills of the same names. `grilling` is built on his `grilling`, `grill` on his `grilling` and `domain-modeling`, `slice` on his `to-tickets`, `build` on his `implement` and `implement-spec`, `challenge` in part on his `code-review`, `retro` on his `retro`, and `setup` on his `setup-matt-pocock-skills`. Each adapted skill names its source in its frontmatter `metadata`.
+The structure of this repository and several of its skills come from [mattpocock/skills](https://github.com/mattpocock/skills), read at commit `4ae2317`. `tdd`, `pr`, `prototype`, `wait-what` and `diagnosing-bugs` are adapted from his skills of the same names. `grilling` is built on his `grilling`, `grill` on his `grill-with-docs` and `domain-modeling`, `slice` on his `to-tickets`, `build` on his `implement` and `implement-spec`, `challenge` in part on his `code-review`, `retro` on his `retro`, and `setup` on his `setup-matt-pocock-skills`. Each adapted skill names its source in its frontmatter `metadata`.
 
 His work is used under the MIT license:
 
