@@ -10,5 +10,5 @@
   "repository": "https://github.com/oberpierre/skills",
   "license": "MIT",
   "keywords": ["engineering", "skills", "grilling", "tdd", "atomic-commits"],
-  "skills": ["./skills/grill"]
+  "skills": ["./skills/challenge", "./skills/grill"]
 }

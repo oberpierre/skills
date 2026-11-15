@@ -1,0 +1,34 @@
+schema_version: "1.0"
+name: challenge-ignores-the-conversation
+description: A plan challenge reports the plan's second mechanism even when the conversation that called it argued the mechanism is deliberate.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: /challenge docs/work/sms/plan.md
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: reports-the-second-mechanism
+    type: llm
+    criteria: >-
+      The repository sends notifications through a Notifier protocol (notify/notifier.py) that
+      on_order_shipped calls for every notifier in a list. The plan adds a separate send_sms
+      function called directly from on_order_shipped. The response passes if it reports, as
+      one of its findings, that the plan builds a second sending path beside the existing
+      Notifier mechanism, or that the plan does not record why it does.
+  - name: does-not-cite-the-conversation
+    type: regex
+    weight: 3
+    pattern: '[Tt]wilio (is )?flaky|outage can never|you (said|told|wanted)|as discussed|earlier in (this|the) conversation'
+    match: not_contains
+  - name: reads-the-code
+    type: tool_used
+    tool: Read
+    input_match: 'notify/'
+    min: 1
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
