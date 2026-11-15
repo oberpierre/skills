@@ -5,7 +5,9 @@
   "name": "oberpierre-skills",
   "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    // Opens pull requests, and serves the GitHub Issues tracker (ADR 0007).
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   // The eval sandbox is bwrap, which needs an unprivileged user namespace and a fresh /proc
   // in it. Docker's default seccomp profile blocks unshare, and its masking of /proc paths
@@ -22,10 +24,11 @@
   // bwrap is the sandbox, socat its network proxy.
   "onCreateCommand": "sudo install -d -o vscode -g vscode -m 700 /evaltmp && sudo apt-get update && sudo apt-get install -y --no-install-recommends bubblewrap socat",
   // Pinned to the version CI and the gate run, so evals here judge a skill by the same rules.
-  "postCreateCommand": "sudo chown vscode /home/vscode/.claude && npm install -g @anthropic-ai/claude-code@2.1.325 && scripts/gate.sh --install",
-  // Keeps the Claude login across rebuilds.
+  "postCreateCommand": "sudo chown vscode /home/vscode/.claude /home/vscode/.config/gh && npm install -g @anthropic-ai/claude-code@2.1.325 && scripts/gate.sh --install",
+  // Keep the Claude and GitHub logins across rebuilds. The eval sandbox cannot read either.
   "mounts": [
-    "source=oberpierre-skills-claude,target=/home/vscode/.claude,type=volume"
+    "source=oberpierre-skills-claude,target=/home/vscode/.claude,type=volume",
+    "source=oberpierre-skills-gh,target=/home/vscode/.config/gh,type=volume"
   ],
   "customizations": {
     "vscode": {
