@@ -1,0 +1,45 @@
+schema_version: "1.0"
+name: grilling-asks-the-named-decisions
+description: Given two open decisions and the plan they come from, grilling asks a round about those two only, in the round format, and waits.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: >-
+    /grilling two decisions the webhook entry in docs/work/sms/plan.md leaves open: what its
+    test goes through, given the repository has no web layer, and where a sent text is kept so
+    that the webhook can find its customer and message.
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: round-format
+    type: regex
+    pattern: '❓ \*\*Q1\b[\s\S]*➡️[\s\S]*❓ \*\*Q2\b[\s\S]*➡️'
+  - name: closing-line
+    type: regex
+    pattern: 'list the decisions for you to confirm once nothing is open'
+  - name: a-short-round
+    type: regex
+    pattern: '\*\*Q4\b'
+    match: not_contains
+  - name: asks-only-the-named
+    type: llm
+    criteria: >-
+      Every numbered question in the response is about how the delivery webhook's behaviour is
+      tested or where a sent text is stored so that the webhook can find its customer and
+      message. No question asks about Twilio as the provider, the phone number lookup, customers
+      without a phone number, or logging failed texts.
+  - name: reads-the-plan
+    type: tool_used
+    tool: Read
+    input_match: 'docs/work/sms/plan\.md'
+    min: 1
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

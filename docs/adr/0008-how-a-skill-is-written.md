@@ -2,7 +2,7 @@
 
 **Invocation.** A skill that has side effects or needs the user is user-invoked, with `disable-model-invocation: true`, and its description is written for a person browsing the `/` menu. A skill that holds a discipline or reference worth applying unasked is model-invoked, and its description says when to use it. A skill can call only model-invoked skills, so anything another skill composes is model-invoked.
 
-User-invoked: `setup`, `grill`, `slice`, `build`, `retro`, `wait-what`. Model-invoked: `challenge`, `tdd`, `pr`, `prototype`, `diagnosing-bugs`.
+User-invoked: `setup`, `grill`, `slice`, `build`, `retro`, `wait-what`. Model-invoked: `grilling`, `challenge`, `tdd`, `pr`, `prototype`, `diagnosing-bugs`.
 
 **Composition.** A skill calls another with an explicit instruction, "Call the Skill tool with `tdd`", one skill per call. It never links into another skill's folder, since material a skill owns is reached by calling that skill. A called skill shares the caller's context, so a step that needs a fresh one dispatches a subagent instead, handing it pointers rather than pasted content.
 
