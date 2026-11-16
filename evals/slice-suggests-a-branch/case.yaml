@@ -1,0 +1,25 @@
+schema_version: "1.0"
+name: slice-suggests-a-branch
+description: Once the user approves a proposal that suggested a branch name, slice writes the name to the plan's Branch line and creates or switches no branch.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: Approved, go ahead.
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: writes-the-branch-line
+    type: regex
+    target: {source: file, path: docs/work/sms/plan.md}
+    pattern: '\*\*Branch:\*\* `feature/sms`'
+  - name: writes-the-table
+    type: regex
+    target: {source: file, path: docs/work/sms/plan.md}
+    pattern: '## Slices\s+\| *Slice *\|'
+  - name: creates-no-branch
+    type: tool_used
+    tool: Bash
+    input_match: 'git\b[^|;&]*\b(checkout|switch|branch|worktree)\b'
+    min: 0
+    max: 0
