@@ -4,7 +4,14 @@ Instructions for developing this plugin. They sit in `.claude/` because the plug
 
 - **Gate:** `scripts/gate.sh`, run before every commit by the hook `scripts/gate.sh --install` sets up.
 - **Commits:** `arlo-features` as ADR 0003 describes, one behaviour per commit (ADR 0002).
-- **Evals:** a skill's behaviour is pinned by eval cases in `evals/<skill>-*`, run with `evals/run.sh <case>`, which grants the tools the case's first line names (`# allow-tools: …`), and the gate checks that every case has that line. Add `--ablation none` except on a new case's red run. Run a new case red against the skill before writing the text that should turn it green.
+- **Evals:** a skill's behaviour is pinned by eval cases in `evals/<skill>-*`, run only with `evals/run.sh <case>`, which grants the tools the case's first line names (`# allow-tools: …`). Run a new case red against the skill before writing the text that should turn it green.
+- **Eval budget:** evals spend the user's usage limit, which belongs to feature work. One slice's evals once took nearly a whole five-hour limit. `evals/run.sh` runs one run with no baseline arm, keeps traces, and refuses to start once the last five hours' evals reached `EVAL_BUDGET_USD` (default $3). Never bypass the runner or raise the budget yourself: stop and ask. Per slice:
+  - Before running, say what the evals will cost. Stop and ask once a slice's evals pass $1.50.
+  - Its own case gets `--runs 3 --baseline` for the red run and `--runs 3` for the last green run. Every other run is one run.
+  - When a run fails, read its kept trace and check a changed grader offline against saved replies. Rerun only once the cause is known.
+  - Rerun only the cases whose skill text changed, once, one run each, at the end of the slice.
+  - One judge split is not a finding. Look into it only when it repeats.
+  - A new grader runs once in the eval before it is committed.
 
 ## Gotchas
 
