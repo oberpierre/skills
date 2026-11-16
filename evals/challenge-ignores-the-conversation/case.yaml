@@ -1,3 +1,4 @@
+# allow-tools: Write Edit Bash(git:*) Bash(test:*)
 schema_version: "1.0"
 name: challenge-ignores-the-conversation
 description: A plan challenge reports the plan's second mechanism even when the conversation that called it argued the mechanism is deliberate.

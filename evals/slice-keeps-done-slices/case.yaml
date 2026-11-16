@@ -1,3 +1,4 @@
+# allow-tools: Write Edit
 schema_version: "1.0"
 name: slice-keeps-done-slices
 description: On a plan that already has slices, slice keeps the done rows as they are and numbers new slices on from the last id.

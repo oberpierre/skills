@@ -1,3 +1,4 @@
+# allow-tools: Write Edit
 schema_version: "1.0"
 name: slice-writes-the-approved-table
 description: Once the user approves the proposed table, slice writes it into the plan under Slices, every slice todo, and leaves the decision log as it was.

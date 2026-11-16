@@ -1,3 +1,4 @@
+# allow-tools: Write Edit
 schema_version: "1.0"
 name: grill-second-round
 description: A second grilling round builds on the first round's answers, asking only what they opened and nothing they settled.
@@ -10,7 +11,7 @@ execution:
     receiving them. Q3 yes. Q4 yes. Q5 yes. Q6 no, keep it a print stub like EmailNotifier
     for now. Q7 to Q10 yes.
   max_turns: 10
-  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
 graders:
   - name: keeps-the-recorded-grilling
     type: tool_used

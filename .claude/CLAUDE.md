@@ -4,7 +4,7 @@ Instructions for developing this plugin. They sit in `.claude/` because the plug
 
 - **Gate:** `scripts/gate.sh`, run before every commit by the hook `scripts/gate.sh --install` sets up.
 - **Commits:** `arlo-features` as ADR 0003 describes, one behaviour per commit (ADR 0002).
-- **Evals:** a skill's behaviour is pinned by eval cases in `evals/<skill>-*`, run with `claude plugin eval . --case '<case>' --allow-tools Write Edit --scaffold --trust-plugin --no-publish --threshold 0.67`. Run a new case red against the skill before writing the text that should turn it green.
+- **Evals:** a skill's behaviour is pinned by eval cases in `evals/<skill>-*`, run with `evals/run.sh <case>`, which grants the tools the case's first line names (`# allow-tools: …`), and the gate checks that every case has that line. Add `--ablation none` except on a new case's red run. Run a new case red against the skill before writing the text that should turn it green.
 
 ## Gotchas
 

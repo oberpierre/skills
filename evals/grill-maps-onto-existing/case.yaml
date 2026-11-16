@@ -1,3 +1,4 @@
+# allow-tools: Write Edit
 schema_version: "1.0"
 name: grill-maps-onto-existing
 description: Grilling maps an idea worded as something new onto the mechanism the repository already has.
@@ -6,7 +7,7 @@ context:
 execution:
   prompt: /grill we need an SMS service that texts customers when their order ships
   max_turns: 10
-  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
 graders:
   - name: calls-grilling
     type: tool_used

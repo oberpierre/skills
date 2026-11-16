@@ -1,3 +1,4 @@
+# allow-tools: Write Edit
 schema_version: "1.0"
 name: slice-asks-a-raised-decision
 description: A decision the slicing raises is asked under the proposed table through grilling, as a numbered round with a recommendation for each question.

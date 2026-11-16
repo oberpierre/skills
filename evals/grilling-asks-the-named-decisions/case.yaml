@@ -1,3 +1,4 @@
+# allow-tools: Write Edit
 schema_version: "1.0"
 name: grilling-asks-the-named-decisions
 description: Given two open decisions and the plan they come from, grilling asks a round about those two only, in the round format, and waits.

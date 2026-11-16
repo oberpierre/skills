@@ -1,3 +1,4 @@
+# allow-tools: Write Edit
 schema_version: "1.0"
 name: slice-stops-on-a-broken-table
 description: On a slices table with an unknown status, slice stops and reports the problem instead of proposing slices.

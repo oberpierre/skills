@@ -1,3 +1,4 @@
+# allow-tools: Write Edit Bash
 schema_version: "1.0"
 name: slice-suggests-a-branch
 description: Once the user approves a proposal that suggested a branch name, slice writes the name to the plan's Branch line and creates or switches no branch.
@@ -20,6 +21,6 @@ graders:
   - name: creates-no-branch
     type: tool_used
     tool: Bash
-    input_match: 'git\b[^|;&]*\b(checkout|switch|branch|worktree)\b'
+    input_match: 'git\b[^|;&]*\b(checkout|switch)\b|git\s+branch\s+(?!-a\b|--all\b|-l\b|--list\b|--show-current\b|-r\b|-v\b|-vv\b)[\w./-]|git\s+worktree\s+add'
     min: 0
     max: 0
