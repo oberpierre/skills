@@ -10,6 +10,11 @@ execution:
   max_turns: 30
   allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
 graders:
+  - name: grills-the-findings
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 1
   - name: writes-the-plan
     type: tool_used
     tool: Write

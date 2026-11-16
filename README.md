@@ -28,6 +28,7 @@ You take part in grilling, in approving the slices and in reviewing each slice's
 | `build` | you | Builds slices serially, each in a fresh subagent, challenged before it stops |
 | `retro` | you | Proposes improvements to the environment after a feature |
 | `wait-what` | you | Re-explains a message that did not land |
+| `grilling` | agent or you | Asks in numbered rounds, a recommended answer each, until a subject's decisions are made |
 | `challenge` | agent or you | Attacks a plan or a diff from a context that never saw it being made |
 | `tdd` | agent or you | Red, then green, one behaviour at a time, tested at agreed seams |
 | `diagnosing-bugs` | agent or you | Builds a loop that fails on the bug before theorising about it |

@@ -8,6 +8,11 @@ execution:
   max_turns: 10
   allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
 graders:
+  - name: calls-grilling
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 1
   - name: round-format
     type: regex
     pattern: '\*\*Q1\b[\s\S]*➡️[\s\S]*\*\*Q2\b[\s\S]*➡️'
