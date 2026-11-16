@@ -39,6 +39,10 @@ When the plan already has a slices table that lacks one of these columns, has an
 
 Show the proposed table, with a line under it for anything a reader of the table would ask about, such as why two behaviours share a slice. Then ask the user to approve it or say what to change, and stop. Write nothing in this step.
 
+Most plans raise no questions, and then the table goes out alone. Ask a question only when the table cannot be cut without it: when a different answer would change a slice's behaviour, the seam its test goes through, such as a boundary the code does not have yet, or the order of the slices. Do not ask how a slice is built, such as a signature, where a value is read from, where an error is caught or how an outside service is faked in a test, since that is decided when the slice is built. Do not ask what the log or the code already answers. A needless question costs the user a round.
+
+When a question passes that bar, first call the Skill tool with `grilling`, with those decisions as its argument, and then reply with the table, its lines and the round under them, all in one reply. Once nothing is open, propose the table again with the decisions listed under it.
+
 ## Writing
 
-Once the user approves, write the table into the plan under `## Slices`, placed before `## Decision log`, and leave the rest of the plan as it was.
+Once the user approves, write the table into the plan under `## Slices`, placed before `## Decision log`. Add each answered question to the decision log as a decision with its reason, and leave the rest of the plan as it was.

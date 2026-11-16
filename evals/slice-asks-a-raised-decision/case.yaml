@@ -1,0 +1,37 @@
+schema_version: "1.0"
+name: slice-asks-a-raised-decision
+description: A decision the slicing raises is asked under the proposed table through grilling, as a numbered round with a recommendation for each question.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /slice docs/work/sms/plan.md
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: proposes-a-table
+    type: regex
+    pattern: '\| *S1 *\|[^\n]*\| *todo *\|'
+  - name: asks-a-numbered-question
+    type: llm
+    criteria: >-
+      Below a proposed table of slices, the response asks the user at least one numbered
+      question about how to slice or test the webhook decision, such as which seam its test
+      goes through, and gives a recommended answer for each question.
+  - name: calls-grilling
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 1
+  - name: round-format
+    type: regex
+    pattern: '❓ \*\*Q1\b[\s\S]*➡️'
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
