@@ -11,7 +11,8 @@ execution:
 graders:
   - name: reports-no-findings
     type: regex
-    pattern: '(?i)no findings|found nothing|nothing wrong'
+    pattern: 'no findings|found nothing|nothing wrong'
+    flags: i
   - name: raises-no-finding
     type: regex
     pattern: '\*\*F1 – '
