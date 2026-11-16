@@ -49,11 +49,16 @@ graders:
     type: llm
     criteria: >-
       The user has already decided: an injected phone lookup, no opt-in, skipping customers
-      without a number, isolating failures per notifier, no retries, a print stub instead of
-      real Twilio, credentials from environment variables, the email's message text, a
-      factory reading channels.toml, and unit tests. The response passes if none of its
-      questions asks one of these again. A follow-up these answers raise is fine, and so is
-      noting that an answer (such as the stub) makes an earlier decision moot.
+      without a number, isolating failures per notifier, no retries, a print stub instead of real
+      Twilio, credentials from environment variables, the email's message text, a factory reading
+      channels.toml, and unit tests. A question fails this check only when it puts one of these
+      choices to the user again as if it were still open, such as asking again whether to text
+      only opted-in customers or whether to send through real Twilio. A question that works out
+      what a decided answer means given another answer is a follow-up and passes. Examples of
+      follow-ups: whether the credentials are left out of this change or held over until real
+      sending, now that SMS is a print stub; adding an opt-out line to the SMS while the email
+      keeps its text; what the factory takes as input; what the tests check with a stub. The
+      response passes when every question is a new question or such a follow-up.
   - name: no-adr-for-a-default
     type: tool_used
     tool: Write
