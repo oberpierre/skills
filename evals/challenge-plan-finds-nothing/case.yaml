@@ -1,0 +1,17 @@
+schema_version: "1.0"
+name: challenge-plan-finds-nothing
+description: On a plan with nothing wrong in it, a plan challenge reports no findings instead of inventing one.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /challenge docs/work/prefix/plan.md
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Bash]
+graders:
+  - name: reports-no-findings
+    type: regex
+    pattern: '(?i)no findings|found nothing|nothing wrong'
+  - name: raises-no-finding
+    type: regex
+    pattern: '\*\*F1 – '
+    match: not_contains
