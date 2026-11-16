@@ -7,3 +7,6 @@ A plan is a feature's slices and its decision log. Attack it on each of these, r
 - **Malformed input.** What does it do with configuration that is missing or malformed, and with data that is? A plan silent on either is a finding.
 - **Contradictions.** Does a slice or a decision contradict an ADR, the glossary, the code, or another decision in the same plan?
 - **Expensive to undo.** Which decisions would cost the most to reverse once built, such as a data format, a public interface or a stored schema? Name each one whose reason the log does not give.
+
+
+Raise what the checks above find. Leave out how a slice will be coded where nothing in the plan depends on the answer, such as which exceptions to catch, what a log line holds or which package to add: that is settled when the slice is built, and tested there.
