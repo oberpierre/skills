@@ -54,3 +54,7 @@ Then challenge the plan once. Call the Skill tool with `challenge`, with the pla
 ## Rework
 
 When the request names a `done` slice, such as `squash S1 and S2`, first check that its commits are still on the unmerged feature branch: find the commit in the plan's history that set its row to `done`, and see whether it is in the history of the default branch, read from `origin/HEAD`. If it is, say that the slice is merged and a new plan is needed, since rewriting merged commits rewrites shared history, and stop, marking nothing. Otherwise propose the change as a round before touching the plan: call the Skill tool with `grilling`, with the change as its argument, and reply with the round, recommending the shape you think best. Leave `done` slices alone otherwise. Once the user approves, mark each affected slice `rework` with a one-line note of what is to be done, change nothing else of the built slices, and end by naming the `/build` command to run. Run no git command that rewrites history: `build` carries the rework out.
+
+## Mirroring
+
+With `tracker: github`, mirror the slices to GitHub Issues once the challenge's answers are recorded, or at once when the request only asks to mirror an approved table. Read `GITHUB.md` in this skill's folder for the commands, and follow it. The plan stays the source of truth, so never change a slice to match an issue.
