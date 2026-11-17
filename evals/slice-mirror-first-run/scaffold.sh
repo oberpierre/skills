@@ -2,6 +2,7 @@
 set -euo pipefail
 "$(dirname "$0")/../fixtures/scaffold.sh" notifier
 cp -RL "$(dirname "$0")/bin" .eval-bin
+git remote add origin git@github.com:eval/shopnotes.git
 mkdir -p docs/work/sms .agents && cp "$(dirname "$0")/plan.md" docs/work/sms/plan.md
 printf 'tracker: github\n' > .agents/config.yml
 printf '.eval-bin/\ngh-calls.log\n.gh-next\n' > .gitignore

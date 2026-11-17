@@ -5,10 +5,10 @@ top="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 printf '%s\n' "$*" >> "$top/gh-calls.log"
 case "$1 ${2:-}" in
   "auth status") echo "github.com: Logged in to github.com account eval (keyring)" ;;
-  "repo view") echo '{"nameWithOwner":"eval/notifier"}' ;;
+  "repo view") echo '{"nameWithOwner":"eval/shopnotes"}' ;;
   "issue create")
     n=$(( $(cat "$top/.gh-next" 2>/dev/null || echo 0) + 1 ))
     echo "$n" > "$top/.gh-next"
-    echo "https://github.com/eval/notifier/issues/$n" ;;
+    echo "https://github.com/eval/shopnotes/issues/$n" ;;
 esac
 exit 0

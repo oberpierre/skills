@@ -2,7 +2,7 @@
 # model: opus
 schema_version: "1.0"
 name: slice-mirror-first-run
-description: The first run with tracker github creates a parent issue for the feature and one sub-issue per slice with GitHub's blocking links, closes the done slices' issues and adds an Issue column to the plan.
+description: The first run with tracker github creates a parent issue for the feature and one sub-issue per slice with GitHub's blocking links, each self-contained with a short title and a description, closes the done slices' issues and adds an Issue column to the plan.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -13,7 +13,7 @@ graders:
   - name: creates-the-parent-first
     type: regex
     target: {source: file, path: gh-calls.log}
-    pattern: '^(?:(?!issue create)[^\n]*\n)*issue create[^\n]*--title Text customers when their order ships'
+    pattern: '^(?:(?!issue create)[^\n]*\n)*issue create (?:(?!\nissue create|Slice:)[\s\S])*\nFeature: sms\s*\nissue create'
   - name: creates-four-issues
     type: regex
     target: {source: file, path: gh-calls.log}
@@ -29,11 +29,18 @@ graders:
     type: regex
     target: {source: file, path: gh-calls.log}
     pattern: '(--parent 1\b[\s\S]*){3}'
-  - name: titles-with-the-behaviour
+  - name: keeps-titles-short
     type: regex
     target: {source: file, path: gh-calls.log}
-    pattern: '^issue create[^\n]*--title When an order ships, a customer with a phone number gets a text'
+    pattern: '^issue create[^\n]*--title (?:(?! --)[^\n]){90}'
     flags: m
+    match: not_contains
+  - name: describes-before-the-test
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '--body (Acceptance test:|Feature: sms\s*(--|$))'
+    flags: m
+    match: not_contains
   - name: bodies-name-the-slice
     type: regex
     target: {source: file, path: gh-calls.log}
