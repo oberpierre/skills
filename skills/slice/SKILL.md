@@ -16,7 +16,7 @@ Turn the decisions in a feature's plan into slices. The argument's first word is
 
 You change no code, and you write nothing until the user approves the slices.
 
-Read `.agents/config.yml` if it exists. Its `tracker` key is `markdown` or `github`, and a missing file or key means `markdown`. When the file is not valid YAML, or `tracker` is any other value, report it and stop, proposing nothing.
+Read `.agents/config.yml` if it exists. Its `tracker` key is `markdown` or `github`, and a missing file or key means `markdown`. When the file is not valid YAML, or `tracker` is any other value, report it and stop, proposing nothing. With `github`, run `gh auth status` first, and when `gh` is missing or not logged in, say so and stop, proposing nothing, rather than carrying on with the Markdown plan alone.
 
 ## Slices
 
