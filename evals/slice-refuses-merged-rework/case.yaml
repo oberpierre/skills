@@ -1,0 +1,44 @@
+# allow-tools: Write Edit Bash
+schema_version: "1.0"
+name: slice-refuses-merged-rework
+description: When the done slice a request names is already merged into the default branch, slice says a new plan is needed and marks nothing rework.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /slice docs/work/sms/plan.md squash S1 and S2 into one slice
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: says-a-new-plan-is-needed
+    type: llm
+    criteria: >-
+      The response says S1 and S2 are already merged into the default branch and so cannot be
+      reworked in this plan, and that a new plan, a new feature, is needed for the change.
+  - name: checks-the-history
+    type: tool_used
+    tool: Bash
+    min: 1
+  - name: marks-no-rework
+    type: regex
+    pattern: '\| *rework *\|'
+    match: not_contains
+  - name: asks-no-round
+    type: regex
+    pattern: '❓ \*\*Q1'
+    match: not_contains
+  - name: rewrites-no-history
+    type: tool_used
+    tool: Bash
+    input_match: 'git\b[^|;&]*\b(rebase|reset|commit|revert|cherry-pick|push|merge(?!-base)|filter-branch)\b'
+    min: 0
+    max: 0
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

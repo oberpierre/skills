@@ -25,7 +25,7 @@ graders:
   - name: rewrites-no-history
     type: tool_used
     tool: Bash
-    input_match: 'git\b[^|;&]*\b(rebase|reset|commit|revert|cherry-pick|push|merge|filter-branch)\b'
+    input_match: 'git\b[^|;&]*\b(rebase|reset|commit|revert|cherry-pick|push|merge(?!-base)|filter-branch)\b'
     min: 0
     max: 0
   - name: writes-nothing
