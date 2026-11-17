@@ -62,6 +62,13 @@ else
   exit 2
 fi
 
+# A case cannot set PATH, but the eval inherits it from this shell. The sandbox
+# sees only the workspace, so a case with a bin/ folder, such as a stub gh, has
+# its scaffold copy it to .eval-bin/ there, and that relative entry goes first.
+if [[ -d "$root/evals/$name/bin" ]]; then
+  export PATH=".eval-bin:$PATH"
+fi
+
 cd "$root"
 exec claude plugin eval . --case "$name" --allow-tools "${grants[@]}" --model "$model" \
   --runs "$runs" --ablation "$ablation" --max-cost-usd "${EVAL_MAX_USD:-1.5}" --keep-temp \
