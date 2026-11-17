@@ -18,7 +18,7 @@ graders:
   - name: challenges-the-plan-by-path
     type: tool_used
     tool: Skill
-    input_match: 'challenge[\s\S]*docs/work/sms/plan\.md'
+    input_match: 'challenge[\s\S]*docs/work/sms/plan\.md slices'
     min: 1
   - name: grills-the-findings
     type: tool_used

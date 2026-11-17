@@ -49,7 +49,7 @@ When a question passes that bar, first call the Skill tool with `grilling`, with
 
 Once the user approves, write the table into the plan under `## Slices`, placed before `## Decision log`. Add each answered question to the decision log as a decision with its reason. Write the approved branch name, as the user left it, on a `` **Branch:** `<name>` `` line under the plan's title, and leave the rest of the plan as it was. Create or switch no branch: the branch is made where the first change is built.
 
-Then challenge the plan once. Call the Skill tool with `challenge`, with the plan's path as its only argument. If it finds nothing, say so and stop. Otherwise call the Skill tool with `grilling`, with the findings as its argument, and put every finding to the user as one round, each title starting with `Challenge:`. Phrase a defect as "Fix as stated?", and where you disagree with a finding, recommend dismissing it and say why. Record the answers in the decision log, and change the table where an answer changes a slice.
+Then challenge the slicing once. Call the Skill tool with `challenge`, with the plan's path followed by `slices` when the table was written for the first time, or by the ids of the slices this run changed, such as `docs/work/sms/plan.md S2 S3`. The decisions were challenged when they were made. If it finds nothing, say so and stop. Otherwise call the Skill tool with `grilling`, with the findings as its argument, and put every finding to the user as one round, each title starting with `Challenge:`. Phrase a defect as "Fix as stated?", and where you disagree with a finding, recommend dismissing it and say why. Record the answers in the decision log, and change the table where an answer changes a slice.
 
 ## Rework
 
