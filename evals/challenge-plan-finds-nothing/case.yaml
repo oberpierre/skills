@@ -1,4 +1,5 @@
 # allow-tools: Bash(git:*) Bash(test:*)
+# model: opus
 schema_version: "1.0"
 name: challenge-plan-finds-nothing
 description: On a plan with nothing wrong in it, a plan challenge reports no findings instead of inventing one.

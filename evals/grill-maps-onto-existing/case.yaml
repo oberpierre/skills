@@ -1,4 +1,5 @@
 # allow-tools: Write Edit
+# model: opus
 schema_version: "1.0"
 name: grill-maps-onto-existing
 description: Grilling maps an idea worded as something new onto the mechanism the repository already has.

@@ -1,4 +1,5 @@
 # allow-tools: Bash(git:*) Bash(test:*)
+# model: opus
 schema_version: "1.0"
 name: challenge-plan-skips-build-details
 description: A plan challenge keeps the findings that change what is built or decided, and raises none about how a slice will be built where the plan leaves that to building.

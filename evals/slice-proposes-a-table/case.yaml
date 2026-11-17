@@ -1,4 +1,5 @@
 # allow-tools: Write Edit
+# model: opus
 schema_version: "1.0"
 name: slice-proposes-a-table
 description: On a plan with a decision log and no slices, slice proposes a slices table in the plan format, asks the user to approve it or say what to change, and writes nothing.

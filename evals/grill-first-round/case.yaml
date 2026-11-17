@@ -1,4 +1,5 @@
 # allow-tools: Write Edit
+# model: opus
 schema_version: "1.0"
 name: grill-first-round
 description: A first grilling round is a numbered set of questions with recommended answers, asks nothing the repository answers, and builds nothing.

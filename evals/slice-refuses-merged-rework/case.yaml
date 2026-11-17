@@ -1,4 +1,5 @@
 # allow-tools: Write Edit Bash
+# model: opus
 schema_version: "1.0"
 name: slice-refuses-merged-rework
 description: When the done slice a request names is already merged into the default branch, slice says a new plan is needed and marks nothing rework.

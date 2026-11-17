@@ -1,4 +1,5 @@
 # allow-tools: Write Edit Bash(git:*) Bash(test:*)
+# model: opus
 schema_version: "1.0"
 name: challenge-plan-second-mechanism
 description: A plan challenge reports a plan that sends texts through a second path beside the existing Notifier, as a finding with a kind and a location, and edits nothing.

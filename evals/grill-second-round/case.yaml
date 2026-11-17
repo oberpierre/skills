@@ -1,4 +1,5 @@
 # allow-tools: Write Edit
+# model: opus
 schema_version: "1.0"
 name: grill-second-round
 description: A second grilling round builds on the first round's answers, asking only what they opened and nothing they settled.

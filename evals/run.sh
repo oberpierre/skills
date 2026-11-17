@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Runs one eval case cheaply, with the grants its case.yaml names on its first
-# line (`# allow-tools: <tool> ...`). A case run without its grants scores
-# garbage, such as a "writes nothing" grader passing because Write never existed.
+# line (`# allow-tools: <tool> ...`), and the model it was written for on its
+# second (`# model: <alias>`). A case run without its grants scores garbage,
+# such as a "writes nothing" grader passing because Write never existed.
 #
 # Evals spend the same usage limit as feature work, so the defaults are the
 # cheapest run that tells anything: one run, no baseline arm, traces kept so a
@@ -25,6 +26,10 @@ line="$(head -n 1 "$case_yaml")"
 [[ "$line" == "# allow-tools:"* ]] \
   || { echo "run.sh: evals/$name/case.yaml does not start with '# allow-tools:'" >&2; exit 1; }
 read -r -a grants <<< "${line#\# allow-tools:}"
+line="$(sed -n 2p "$case_yaml")"
+[[ "$line" == "# model:"* ]] \
+  || { echo "run.sh: evals/$name/case.yaml does not have '# model:' on its second line" >&2; exit 1; }
+model="${line#\# model:}"; model="${model// /}"
 
 runs=1
 ablation=none
@@ -58,6 +63,6 @@ else
 fi
 
 cd "$root"
-exec claude plugin eval . --case "$name" --allow-tools "${grants[@]}" \
+exec claude plugin eval . --case "$name" --allow-tools "${grants[@]}" --model "$model" \
   --runs "$runs" --ablation "$ablation" --max-cost-usd "${EVAL_MAX_USD:-1.5}" --keep-temp \
   --scaffold --trust-plugin --no-publish --threshold 0.67 "${extra[@]}"

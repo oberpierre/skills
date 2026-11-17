@@ -1,4 +1,5 @@
 # allow-tools: Write Edit Bash
+# model: opus
 schema_version: "1.0"
 name: slice-reworks-a-named-slice
 description: When the request names a done slice, slice proposes the change as a round and runs no git command that rewrites history.

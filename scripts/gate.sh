@@ -100,6 +100,9 @@ for case_yaml in "$root"/evals/*/case.yaml; do
     fail "evals/$name/case.yaml does not start with '# allow-tools:'"
     continue
   fi
+  if [[ "$(sed -n 2p "$case_yaml")" != "# model: "[a-z]* ]]; then
+    fail "evals/$name/case.yaml does not have '# model: <alias>' on its second line"
+  fi
   allowed="$(sed -n 's/^ *allowed_tools: *\[\(.*\)\]/\1/p' "$case_yaml" | tr -d ' ')"
   for tool in Write Edit Bash; do
     if [[ ",$allowed," == *",$tool,"* && " ${first#\# allow-tools:} " != *" $tool"[\ \(]* ]]; then

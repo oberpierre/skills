@@ -1,4 +1,5 @@
 # allow-tools: Write Edit Bash(git:*) Bash(test:*)
+# model: opus
 schema_version: "1.0"
 name: slice-ends-with-challenge
 description: Once the approved table is written, slice challenges the plan by path and asks the findings as a Challenge round through grilling.

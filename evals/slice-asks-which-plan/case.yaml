@@ -1,4 +1,5 @@
 # allow-tools: Write Edit
+# model: opus
 schema_version: "1.0"
 name: slice-asks-which-plan
 description: When no plan is named and docs/work/ holds several plans, slice asks which plan to use and writes nothing.

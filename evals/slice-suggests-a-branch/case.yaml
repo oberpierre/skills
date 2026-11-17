@@ -1,4 +1,5 @@
 # allow-tools: Write Edit Bash
+# model: opus
 schema_version: "1.0"
 name: slice-suggests-a-branch
 description: Once the user approves a proposal that suggested a branch name, slice writes the name to the plan's Branch line and creates or switches no branch.
