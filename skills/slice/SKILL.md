@@ -16,6 +16,8 @@ Turn the decisions in a feature's plan into slices. The argument's first word is
 
 You change no code, and you write nothing until the user approves the slices.
 
+Read `.agents/config.yml` if it exists. Its `tracker` key is `markdown` or `github`, and a missing file or key means `markdown`. When the file is not valid YAML, or `tracker` is any other value, report it and stop, proposing nothing.
+
 ## Slices
 
 A slice is one behaviour built end to end and pinned by an acceptance test, small enough to review as a few commits. Cut along behaviours a user or caller can observe, never along layers, so no slice is only a model, only a schema or only wiring. Order them so each slice can be built once the slices it is blocked by are done, and give every decision in the log a slice that carries it out or say why none does.
