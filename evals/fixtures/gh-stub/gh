@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 # A stand-in for gh in eval cases: logged in, offline, and logging every call,
 # one per line, to gh-calls.log at the top of the workspace for graders to read.
+# Existing issues a case needs to show are .gh-issues/<n>.json files there.
 top="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 printf '%s\n' "$*" >> "$top/gh-calls.log"
 case "$1 ${2:-}" in
   "auth status") echo "github.com: Logged in to github.com account eval (keyring)" ;;
   "repo view") echo '{"nameWithOwner":"eval/shopnotes"}' ;;
+  "issue view")
+    # A case's scaffold may record an existing issue as .gh-issues/<n>.json.
+    cat "$top/.gh-issues/$3.json" 2>/dev/null \
+      || echo "{\"number\":$3,\"title\":\"Issue $3\",\"body\":\"\",\"state\":\"OPEN\"}" ;;
   "issue create")
     n=$(( $(cat "$top/.gh-next" 2>/dev/null || echo 0) + 1 ))
     echo "$n" > "$top/.gh-next"

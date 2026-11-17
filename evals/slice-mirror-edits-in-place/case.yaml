@@ -1,0 +1,34 @@
+# allow-tools: Write Edit Bash Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: slice-mirror-edits-in-place
+description: A later run that changes a mirrored slice edits only that slice's issue, in place, found by the plan's Issue column.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: "1: dismiss it, the test is fine as it is."
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: writes-the-change
+    type: regex
+    target: {source: file, path: docs/work/prefix/plan.md}
+    pattern: '\| *S1 *\|[^\n]*`test_every_email_is_prefixed`[^\n]*\| *#2 *\|'
+  - name: edits-the-changed-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue edit 2\b'
+    flags: m
+  - name: leaves-the-other-issues-alone
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue (edit|close|reopen) [13]\b'
+    flags: m
+    match: not_contains
+  - name: creates-no-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue create'
+    flags: m
+    match: not_contains

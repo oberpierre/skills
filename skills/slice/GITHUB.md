@@ -29,3 +29,11 @@ gh issue create --title "<Behaviour>" --body "<body>" --parent <parent> [--block
 Then close the issue of every `done` slice with `gh issue close <n> --reason completed`.
 
 Add an `Issue` column to the table, after `Note`, holding `#<n>` for each slice, and write a `` **Issue:** #<parent> `` line under the plan's `**Branch:**` line. The parent stays open until `build` closes the plan.
+
+## Later runs: the table has an `Issue` column
+
+Find an issue only by the number in the plan, the slice's `Issue` cell or the `**Issue:**` line, never by searching GitHub.
+
+- A slice this run changed keeps its issue: rewrite its title and body from the new row as on the first run, with `gh issue edit <n> --title "<title>" --body "<body>"`.
+- A slice this run added gets an issue as on the first run, a sub-issue of the parent, and its number in the `Issue` column.
+- Leave every other issue as it is, even when it differs from its row, since this run did not change that slice.

@@ -20,4 +20,4 @@ A plan is a feature's slices and its decision log. Attack it on the checks below
 - **A gap between slices.** Does a behaviour the plan promises fall between two slices, so that each is built and tested while nothing joins them?
 - **Contradictions.** Does a slice contradict a decision it carries out, or another slice?
 
-Raise what the checks above find. Leave out how a slice will be coded where nothing in the plan depends on the answer, such as which exceptions to catch, what a log line holds or which package to add: that is settled when the slice is built, and tested there.
+Raise what the checks above find. Leave out how a slice will be coded where nothing in the plan depends on the answer, such as which exceptions to catch, what a log line holds or which package to add: that is settled when the slice is built, and tested there. Leave out whether an issue mirrored from the plan matches its row too, since `slice` brings the issues in step after the challenge.
