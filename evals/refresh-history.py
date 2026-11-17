@@ -1,7 +1,8 @@
 """Keep the skill text recorded in each eval history equal to the current SKILL.md.
 
 A resumed session replays the skill text expanded when it was recorded, so after
-an edit to SKILL.md a stale history tests the old instructions.
+an edit to SKILL.md a stale history tests the old instructions. The same holds for
+a recorded Read of any other file under skills/, such as a skill's reference file.
 
 Usage: refresh-history.py [--check] [history.jsonl ...]   (default: every history)
 """
@@ -17,6 +18,12 @@ MARKER = "Base directory for this skill:"
 def expansion(skill_md: Path, args: str, head: str) -> str:
     body = skill_md.read_text().split("---", 2)[2].lstrip("\n")
     return f"{head}\n\n{body.replace('$ARGUMENTS', args)}"
+
+
+def numbered(path: Path) -> str:
+    """Return a file's text as a recorded Read result shows it, each line after its number and a tab."""
+    lines = path.read_text().split("\n")
+    return "\n".join(f"{i}\t{line}" for i, line in enumerate(lines, 1))
 
 
 def relink(entries: list[dict]) -> bool:
@@ -42,14 +49,35 @@ def refresh(history: Path, write: bool) -> bool:
     """Return whether the history was already current."""
     entries = [json.loads(line) for line in history.read_text().splitlines() if line.strip()]
     args = ""
+    reads: dict[str, Path] = {}
     current = relink(entries)
     for entry in entries:
-        content = entry.get("message", {}).get("content") if entry.get("type") == "user" else None
+        content = entry.get("message", {}).get("content")
+        if entry.get("type") == "assistant" and isinstance(content, list):
+            for block in content:
+                if block.get("type") != "tool_use":
+                    continue
+                if block.get("name") == "Skill":
+                    # A skill called as a tool expands with that call's args, not the command's.
+                    args = block.get("input", {}).get("args", "")
+                path = Path(block.get("input", {}).get("file_path", ""))
+                if block.get("name") == "Read" and path.is_relative_to(ROOT / "skills") and path.is_file():
+                    reads[block["id"]] = path
+            continue
+        if entry.get("type") != "user":
+            continue
         if isinstance(content, str) and "<command-args>" in content:
             args = content.split("<command-args>")[1].split("</command-args>")[0]
         if not isinstance(content, list):
             continue
         for block in content:
+            if block.get("type") == "tool_result" and block.get("tool_use_id") in reads:
+                wanted = numbered(reads[block["tool_use_id"]])
+                if block.get("content") != wanted:
+                    current = False
+                    block["content"] = wanted
+                    entry.pop("toolUseResult", None)
+                continue
             text = block.get("text", "")
             if block.get("type") != "text" or not text.startswith(MARKER):
                 continue
