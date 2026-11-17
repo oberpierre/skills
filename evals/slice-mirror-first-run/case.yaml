@@ -2,7 +2,7 @@
 # model: opus
 schema_version: "1.0"
 name: slice-mirror-first-run
-description: The first run with tracker github creates one issue per slice with GitHub's blocking links, closes the done slices' issues and adds an Issue column to the plan.
+description: The first run with tracker github creates a parent issue for the feature and one sub-issue per slice with GitHub's blocking links, closes the done slices' issues and adds an Issue column to the plan.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -10,17 +10,25 @@ execution:
   max_turns: 25
   allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
 graders:
-  - name: creates-three-issues
+  - name: creates-the-parent-first
     type: regex
     target: {source: file, path: gh-calls.log}
-    pattern: '^issue create[^\n]*\n[\s\S]*^issue create[^\n]*\n[\s\S]*^issue create'
-    flags: m
-  - name: creates-no-fourth-issue
+    pattern: '^(?:(?!issue create)[^\n]*\n)*issue create[^\n]*--title Text customers when their order ships'
+  - name: creates-four-issues
     type: regex
     target: {source: file, path: gh-calls.log}
     pattern: '(^issue create[\s\S]*){4}'
     flags: m
+  - name: creates-no-fifth-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '(^issue create[\s\S]*){5}'
+    flags: m
     match: not_contains
+  - name: makes-the-slices-sub-issues
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '(--parent 1\b[\s\S]*){3}'
   - name: titles-with-the-behaviour
     type: regex
     target: {source: file, path: gh-calls.log}
@@ -33,20 +41,23 @@ graders:
   - name: links-the-blockers
     type: regex
     target: {source: file, path: gh-calls.log}
-    pattern: 'Slice: S2 --blocked-by 1\b[\s\S]*Slice: S3 --blocked-by 1\b|--blocked-by 1\b[^\n]*\n(?:(?!^issue )[^\n]*\n)*Slice: S2[\s\S]*--blocked-by 1\b[^\n]*\n(?:(?!^issue )[^\n]*\n)*Slice: S3'
-    flags: m
+    pattern: '(--blocked-by 2\b[\s\S]*){2}'
   - name: closes-the-done-issues
     type: regex
     target: {source: file, path: gh-calls.log}
-    pattern: '^issue close 1\b[\s\S]*^issue close 2\b|^issue close 2\b[\s\S]*^issue close 1\b'
+    pattern: '^issue close 2\b[\s\S]*^issue close 3\b|^issue close 3\b[\s\S]*^issue close 2\b'
     flags: m
-  - name: leaves-the-todo-issue-open
+  - name: leaves-the-parent-and-todo-issue-open
     type: regex
     target: {source: file, path: gh-calls.log}
-    pattern: '^issue close 3\b'
+    pattern: '^issue close [14]\b'
     flags: m
     match: not_contains
   - name: adds-the-issue-column
     type: regex
     target: {source: file, path: docs/work/sms/plan.md}
-    pattern: '\| *Note *\| *Issue *\|[\s\S]*\| *S3 *\|[^\n]*\| *#3 *\|'
+    pattern: '\| *Note *\| *Issue *\|[\s\S]*\| *S3 *\|[^\n]*\| *#4 *\|'
+  - name: writes-the-issue-line
+    type: regex
+    target: {source: file, path: docs/work/sms/plan.md}
+    pattern: '\*\*Issue:\*\* #1\b'

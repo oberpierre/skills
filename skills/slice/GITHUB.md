@@ -8,10 +8,16 @@ Run `gh repo view --json nameWithOwner`, and when the repository is not the one 
 
 ## First run: the table has no `Issue` column
 
-Create one issue per slice, in the table's order, so that a slice's blockers already have numbers:
+First create the feature's parent issue, titled with the plan's one-line summary under its title, with `Feature: <the plan's folder name>` as its body:
 
 ```
-gh issue create --title "<Behaviour>" --body "<body>" [--blocked-by <n>,<n>]
+gh issue create --title "<summary>" --body "Feature: <slug>"
+```
+
+Then create one issue per slice, in the table's order, so that a slice's blockers already have numbers, each a sub-issue of the parent:
+
+```
+gh issue create --title "<Behaviour>" --body "<body>" --parent <parent> [--blocked-by <n>,<n>]
 ```
 
 - The title is the row's Behaviour, without its backticks.
@@ -20,4 +26,4 @@ gh issue create --title "<Behaviour>" --body "<body>" [--blocked-by <n>,<n>]
 
 Then close the issue of every `done` slice with `gh issue close <n> --reason completed`.
 
-Add an `Issue` column to the table, after `Note`, holding `#<n>` for each slice, and write it into the plan.
+Add an `Issue` column to the table, after `Note`, holding `#<n>` for each slice, and write a `` **Issue:** #<parent> `` line under the plan's `**Branch:**` line. The parent stays open until `build` closes the plan.
