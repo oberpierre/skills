@@ -1,0 +1,38 @@
+# allow-tools: Write Edit Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: challenge-plan-proof-misses-defect
+description: A plan challenge reports a slice whose acceptance test could pass while the defect it guards against survives, as a finding with a kind and a location, and edits nothing.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /challenge docs/work/sms/plan.md
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: reports-the-weak-proof
+    type: llm
+    criteria: >-
+      The plan's slice S1 promises a text sent from the configured from_number, but its
+      acceptance test only asserts that one text was sent, so it passes even when the text goes
+      out from the wrong number. The response passes if it reports, as one of its findings,
+      that S1's test could pass while the defect survives, such as by saying it does not check
+      the sender number.
+  - name: states-a-kind
+    type: regex
+    pattern: '\b(defect|question)\b'
+    flags: i
+  - name: states-a-location
+    type: regex
+    pattern: 'plan\.md(:\d+| *\(?(S1|S2|slice|line))|notifier\.py:\d+|shipping\.py:\d+'
+    flags: i
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
