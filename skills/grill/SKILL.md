@@ -34,7 +34,7 @@ _Avoid_: medium, transport
 
 When you believe no open question is left, the plan comes before the list of decisions.
 
-1. **Write the plan.** Name the feature with a short kebab-case slug, and tell the user the slug so they can rename it. Write the decisions to `docs/work/<slug>/plan.md` under `## Decision log`, one entry each: the decision in one sentence, the reason the user gave, and the alternative they rejected where one was weighed. If the file exists, add to its decision log and leave the rest of it as it is. Do not commit it.
+1. **Write the plan.** Name the feature with a short kebab-case slug, and tell the user the slug so they can rename it. Write the decisions to `docs/work/<slug>/plan.md` under `## Decision log`, one entry each: the decision in one sentence and the reason the user gave. Name a rejected alternative, with why, only when a later reader would propose it on their own. If the file exists, add to its decision log and leave the rest of it as it is. Do not commit it.
 2. **Challenge it.** Call the Skill tool with `challenge`, with the plan's path as its only argument.
 3. **Ask its findings.** Call the Skill tool with `grilling` again, with the findings as its argument, since they are a new subject. Put every finding to the user as one more round, its numbering continued, each title starting with `Challenge:`. Phrase a defect as "Fix as stated?". Where you disagree with a finding, recommend dismissing it and say why. If there are no findings, say so and go on to the list.
 
