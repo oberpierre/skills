@@ -1,0 +1,45 @@
+# allow-tools: Write Edit Bash Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: slice-mirror-merge-and-rework
+description: When two mirrored slices merge, the first keeps its issue, edited in place, and the second's issue is closed as not planned with a comment pointing to the first.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: "1: dismiss it, the test is fine as it is."
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: writes-the-merge
+    type: regex
+    target: {source: file, path: docs/work/prefix/plan.md}
+    pattern: '\| *S1 *\|[^\n]*\| *#2 *\|'
+  - name: drops-the-merged-row
+    type: regex
+    target: {source: file, path: docs/work/prefix/plan.md}
+    pattern: '^\| *S2 *\|'
+    flags: m
+    match: not_contains
+  - name: closes-the-merged-issue-as-not-planned
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3\b[^\n]*(--reason not planned[\s\S]*#2\b|#2\b[\s\S]*--reason not planned)'
+    flags: m
+  - name: edits-the-kept-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue edit 2\b'
+    flags: m
+  - name: leaves-the-parent-alone
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue (edit|close|reopen) 1\b'
+    flags: m
+    match: not_contains
+  - name: creates-no-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue create'
+    flags: m
+    match: not_contains

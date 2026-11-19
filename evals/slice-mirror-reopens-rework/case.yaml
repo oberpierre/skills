@@ -1,0 +1,34 @@
+# allow-tools: Write Edit Bash Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: slice-mirror-reopens-rework
+description: When a mirrored done slice is marked rework, its closed issue is reopened and the other issues are left alone.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: "1: yes"
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: marks-rework
+    type: regex
+    target: {source: file, path: docs/work/prefix/plan.md}
+    pattern: '\| *S1 *\|[^\n]*\| *rework *\| *[^|\s][^|\n]*\| *#2 *\|'
+  - name: reopens-the-reworked-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue reopen 2\b'
+    flags: m
+  - name: leaves-the-other-issues-alone
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue (edit|close|reopen) [13]\b'
+    flags: m
+    match: not_contains
+  - name: creates-no-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue create'
+    flags: m
+    match: not_contains
