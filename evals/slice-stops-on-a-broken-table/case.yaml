@@ -2,7 +2,7 @@
 # model: opus
 schema_version: "1.0"
 name: slice-stops-on-a-broken-table
-description: On a slices table with an unknown status, slice stops and reports the problem instead of proposing slices.
+description: On a slices table with an unknown status and a Blocked by entry that is not a slice id, slice stops and reports both problems instead of proposing slices.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -13,6 +13,9 @@ graders:
   - name: names-the-status
     type: regex
     pattern: '`?wip`?'
+  - name: names-the-blocker
+    type: regex
+    pattern: 'Twilio account'
   - name: proposes-no-slices
     type: regex
     pattern: '\| *S\d+ *\|[^\n]*\| *todo *\|'

@@ -23,7 +23,7 @@ gh issue create --title "<Behaviour>" --body "<body>" --parent <parent> [--block
 ```
 
 - The title says what the slice adds, from its Behaviour.
-- The body is the description, then three lines: `Acceptance test: <the Acceptance test cell>`, `Feature: <the plan's folder name>`, `Slice: <id>`. A Blocked by entry that is not a slice id goes into the body as one more line, `Blocked by: <entry>`, and gets no link.
+- The body is the description, then three lines: `Acceptance test: <the Acceptance test cell>`, `Feature: <the plan's folder name>`, `Slice: <id>`.
 - `--blocked-by` lists the issue numbers of the slice ids in Blocked by, and is left out when there are none.
 
 Then close the issue of every `done` slice with `gh issue close <n> --reason completed`.

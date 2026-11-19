@@ -35,7 +35,7 @@ Each slice is one row of this table:
 - **Blocked by** lists slice ids, or `none`.
 - **Status** is `todo`, `done` or `rework`. A new slice is `todo`, and its Note stays empty.
 
-When the plan already has a slices table that lacks one of these columns, has another status or uses an id twice, report each problem and stop, proposing nothing. Fixing it yourself could change what the user approved.
+When the plan already has a slices table that lacks one of these columns, has another status, uses an id twice or is blocked by anything but slice ids, report each problem and stop, proposing nothing. Fixing it yourself could change what the user approved.
 
 ## Proposing
 
