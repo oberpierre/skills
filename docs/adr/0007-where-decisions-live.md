@@ -20,6 +20,6 @@ Notes the agent always loads compete for one budget, and one section of the agen
 
 An issue tracker is good at showing progress and blocked work, and bad at state that `build` rewrites, such as a slice's status during a rework. Keeping that state in one file means two stores cannot disagree. A slice's commits are found from the plan's history only while the branch is unmerged, since a squash or rebase merge gives them new identities, so the plan has served its purpose once the branch merges. Its decisions are what outlive it, which is why they move before it is deleted. Issues record what each slice did, and they do not record why.
 
-The plan is closed only once the user has approved the last slice, because review is when rework is found, and a rework needs the plan. The parent issue closes when the pull request merges, because a feature is done when it is merged.
+The plan is closed only once the user has approved the last slice, not as soon as it is built: review is when rework is found, and a rework needs the plan. The parent issue closes when the pull request merges, because a feature is done when it is merged.
 
 Local Markdown works offline and in repositories that keep agent material out of version control, which suits solo projects better than a tracker does.
