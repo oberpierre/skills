@@ -8,7 +8,7 @@ The plan is committed on the feature branch with the first slice, and it is the 
 
 Surprises about tools and the codebase go into a `## Gotchas` section of the agent file (`CLAUDE.md` or `AGENTS.md`), under a line budget the section states. There is no separate field guide.
 
-The tracker is local Markdown by default, meaning the plan alone. GitHub Issues is an option when `setup` finds `gh` available, and it mirrors the plan rather than replacing it: one issue per slice, with native blocking links, closed when the slice is done and linked from the pull request. The decision log and the slices' status stay in the plan.
+The tracker is local Markdown by default, meaning the plan alone. GitHub Issues is an option when `setup` finds `gh` available, and it mirrors the plan rather than replacing it: one issue per slice, with native blocking links, closed when the slice is done and linked from the pull request. The slices' issues are sub-issues of one parent issue for the feature, which the pull request body closes with `Closes #<parent>` when it merges. The decision log and the slices' status stay in the plan.
 
 ## Why
 
@@ -27,3 +27,5 @@ Local Markdown works offline and in repositories that keep agent material out of
 **2026-11-14.** The bar used to be "cross-feature, hard to reverse or surprising to a later reader", any one sufficing. An eval of `grill` showed it was too loose: from one round of ten answers, the agent wrote two or three ADRs, among them one for reading credentials from environment variables, which is ordinary practice. With all three conditions required, it wrote at most one.
 
 **2026-11-15.** `build` used to close the plan as soon as the last slice was done. A challenge of the `slice` plan showed that this deletes the plan before the user's review of a whole feature, which is when rework is found, so a rework request through `slice` would find no plan. The close now waits for the user's approval.
+
+**2026-11-19.** The `slice` feature added a parent issue per feature, and first had `build` close it together with the plan. That would show the feature done while its pull request is still open, so the parent now closes when the pull request merges. Deleting the plan as soon as the last slice passes `build`'s challenge, before the user's review, was weighed again and rejected for the reason of 2026-11-15: every rework found in review would first have to restore the plan.
