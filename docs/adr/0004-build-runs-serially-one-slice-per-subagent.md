@@ -8,13 +8,10 @@ No commit range is recorded. `build` keeps the commit a slice starts from in its
 
 ## Why
 
-Parallel slices in one working tree break the attestation a commit carries. Each agent runs the gate with the other's unfinished edits on disk, so a green gate no longer says anything about the commit it precedes. Files that do not overlap are no guarantee of independence either, and history written in the order slices happened to finish needs reordering by hand. Separate worktrees rebased in plan order would solve both, at the cost of machinery a solo project rarely earns back.
+Parallel slices in one working tree break the attestation a commit carries. Each agent runs the gate with the other's unfinished edits on disk, so a green gate no longer says anything about the commit it precedes. Files that do not overlap are no guarantee of independence either, and history written in the order slices happened to finish needs reordering by hand. Separate worktrees rebased in plan order would solve both, at the cost of machinery a solo project rarely earns back. A `retro` finding that serial building is too slow is what reopens this.
 
 A fresh subagent per slice keeps each slice's context free of the previous one's exploration, and it keeps the orchestrating session small enough to stay sharp across a whole feature.
 
-Serial building keeps each slice's commits together, so git can answer which commits are a slice's without a record. Recorded hashes went stale on every squash or rebase and took commits that did nothing else, and a `Slice:` trailer would name a slice in a plan that is deleted once the feature closes.
+Serial building keeps each slice's commits together, so git answers which commits are a slice's without a record, which would go stale on every squash or rebase.
 
-## Considered options
-
-- **Parallel slices when their expected files do not overlap.** Rejected for the reasons above. A `retro` finding that serial building is too slow is the trigger to revisit it.
-- **Two skills, one per scope.** Rejected because one skill whose argument shows its scope is one less name to remember.
+One skill covers both scopes, because an argument that shows its scope is one less name to remember.
