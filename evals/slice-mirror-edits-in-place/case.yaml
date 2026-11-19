@@ -15,11 +15,21 @@ graders:
     type: regex
     target: {source: file, path: docs/work/prefix/plan.md}
     pattern: '\| *S1 *\|[^\n]*`test_every_email_is_prefixed`[^\n]*\| *#2 *\|'
-  - name: edits-the-changed-issue
+  - name: records-the-answer
+    type: regex
+    target: {source: file, path: docs/work/prefix/plan.md}
+    pattern: 'does not check the email''s text\.\n+- \S'
+  - name: edits-the-changed-issue-from-the-new-row
     type: regex
     target: {source: file, path: gh-calls.log}
-    pattern: '^issue edit 2\b'
+    pattern: '^issue edit 2\b(?:(?!\nissue )[\s\S])*test_every_email_is_prefixed'
     flags: m
+  - name: finds-issues-by-number-only
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^(issue list|search)\b'
+    flags: m
+    match: not_contains
   - name: leaves-the-other-issues-alone
     type: regex
     target: {source: file, path: gh-calls.log}

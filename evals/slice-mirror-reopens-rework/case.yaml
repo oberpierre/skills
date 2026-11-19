@@ -26,6 +26,16 @@ graders:
     pattern: '^issue (edit|close|reopen) [13]\b'
     flags: m
     match: not_contains
+  - name: finds-issues-by-number-only
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^(issue list|search)\b'
+    flags: m
+    match: not_contains
+  - name: names-the-build-command
+    type: regex
+    target: last_message
+    pattern: '/build docs/work/prefix/plan\.md'
   - name: creates-no-issue
     type: regex
     target: {source: file, path: gh-calls.log}
