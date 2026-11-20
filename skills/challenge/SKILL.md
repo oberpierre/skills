@@ -1,7 +1,7 @@
 ---
 name: challenge
 description: Attack a plan or a diff adversarially, from a context that never saw it being made, and report findings without editing anything. Use on a feature plan before it is built, or on a commit range before it is reviewed.
-argument-hint: "[plan path [slices | slice ids] | commit range]"
+argument-hint: "[plan path [slices | slice ids] | [plan path [slice id]] commit range]"
 context: fork
 model: opus
 allowed-tools: Bash(test:*) Bash(git log:*) Bash(git diff:*)
@@ -21,6 +21,7 @@ You review an artifact you did not make, and you never saw the conversation that
 The argument decides what you attack.
 
 - **A path to a plan file**, such as `docs/work/<feature>/plan.md`, optionally followed by `slices` or slice ids: a plan challenge. Read `PLAN.md` in this skill's folder for what to attack, and ignore the commits and diff below, including any error git printed there.
+- **A plan path, then optionally one slice id, then a commit range**, such as `docs/work/<feature>/plan.md S2 <range>`, or `<plan> <range>` for the whole plan: a code challenge through both lenses. A range after the path, even with a slice id before it, makes it this and not a plan challenge. Read `CODE.md` in this skill's folder for the lenses. Read the range yourself with `git log --oneline <range>` and `git diff <range>`, and ignore the commits and diff below, including any error git printed there.
 - **A commit range, or no argument**: a diff challenge, of the range or, with no argument, of the branch since it left `main`. Its commits and diff are below. Read `CODE.md` in this skill's folder for what to attack.
 - **Anything else**, or a range git rejected below: say what you were given and why it is neither, and stop.
 
