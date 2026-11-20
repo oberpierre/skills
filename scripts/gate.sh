@@ -90,6 +90,35 @@ for skill_md in "$root"/skills/*/SKILL.md; do
   fi
 done
 
+# A case run without the tools it relies on scores garbage, so each case names
+# its grants on its first line, which evals/run.sh passes to the eval. Every
+# gated tool the case allows must be granted there, or the agent never has it.
+for case_yaml in "$root"/evals/*/case.yaml; do
+  name="$(basename "$(dirname "$case_yaml")")"
+  first="$(head -n 1 "$case_yaml")"
+  if [[ "$first" != "# allow-tools:"* ]]; then
+    fail "evals/$name/case.yaml does not start with '# allow-tools:'"
+    continue
+  fi
+  # With nothing granted, evals/run.sh's --allow-tools would swallow the next option.
+  if [[ "${first#\# allow-tools:}" =~ ^[[:space:]]*$ ]]; then
+    fail "evals/$name/case.yaml grants no tool on its '# allow-tools:' line"
+  fi
+  if [[ "$(sed -n 2p "$case_yaml")" != "# model: "[a-z]* ]]; then
+    fail "evals/$name/case.yaml does not have '# model: <alias>' on its second line"
+  fi
+  # The grant check below reads only a one-line list, so a block list would pass it unchecked.
+  if grep -Eq '^ *allowed_tools:' "$case_yaml" && ! grep -Eq '^ *allowed_tools: *\[.*\] *$' "$case_yaml"; then
+    fail "evals/$name/case.yaml writes allowed_tools as anything but a one-line [ ... ] list"
+  fi
+  allowed="$(sed -n 's/^ *allowed_tools: *\[\(.*\)\]/\1/p' "$case_yaml" | tr -d ' ')"
+  for tool in Write Edit Bash; do
+    if [[ ",$allowed," == *",$tool,"* && " ${first#\# allow-tools:} " != *" $tool"[\ \(]* ]]; then
+      fail "evals/$name/case.yaml allows $tool but its '# allow-tools:' line does not grant it"
+    fi
+  done
+done
+
 if ! python3 -I "$root/evals/refresh-history.py" --check; then
   fail "an eval history is stale or broken"
 fi

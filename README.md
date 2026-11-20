@@ -4,7 +4,7 @@ Agent skills for building software in small, reviewed steps. You make every deci
 
 Built for solo projects, and usable in any repository: the build, test and tracker details of a project live in its own `.agents/config.yml`, never in the skills.
 
-> **Status:** in development. `grill` is usable, and the other skills are being written one at a time. The design is recorded in [docs/adr/](docs/adr/).
+> **Status:** in development. `grill`, `challenge` and `slice` are usable, and the other skills are being written one at a time. The design is recorded in [docs/adr/](docs/adr/).
 
 ## How it works
 

@@ -1,0 +1,36 @@
+# allow-tools: Write Edit
+# model: opus
+schema_version: "1.0"
+name: slice-stops-on-a-bad-config
+description: When .agents/config.yml names a tracker that is neither markdown nor github, slice stops and reports it instead of proposing.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /slice docs/work/sms/plan.md
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: reads-the-config
+    type: tool_used
+    tool: Read
+    input_match: 'config\.yml'
+    min: 1
+  - name: stops-and-reports
+    type: llm
+    criteria: >-
+      The response reports that the configured tracker value `jira` is not one of the known
+      values, markdown or github, and stops without proposing any slices.
+  - name: proposes-no-table
+    type: regex
+    pattern: '\| *S\d+ *\|[^\n]*\| *todo *\|'
+    match: not_contains
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

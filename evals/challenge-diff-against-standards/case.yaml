@@ -1,3 +1,5 @@
+# allow-tools: Write Edit Bash(git:*) Bash(test:*)
+# model: opus
 schema_version: "1.0"
 name: challenge-diff-against-standards
 description: A diff challenge on a commit range reports where the diff breaks the agent file, a standards file named in .agents/config.yml, and the smell baseline, and edits nothing.

@@ -1,0 +1,41 @@
+# allow-tools: Write Edit Bash
+# model: opus
+schema_version: "1.0"
+name: slice-reworks-a-named-slice
+description: When the request names a done slice, slice proposes the change as a round and runs no git command that rewrites history.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /slice docs/work/sms/plan.md squash S1 and S2 into one slice
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: calls-grilling
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 1
+  - name: round-format
+    type: regex
+    pattern: '❓ \*\*Q1\b[\s\S]*➡️'
+  - name: proposes-the-change
+    type: llm
+    criteria: >-
+      The response proposes squashing the done slices S1 and S2 into one slice, and asks the
+      user a numbered question about it with a recommended answer.
+  - name: rewrites-no-history
+    type: tool_used
+    tool: Bash
+    input_match: 'git\b[^|;&]*\b(rebase|reset|commit|revert|cherry-pick|push|merge(?!-base)|filter-branch)\b'
+    min: 0
+    max: 0
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

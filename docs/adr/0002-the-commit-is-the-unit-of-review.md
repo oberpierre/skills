@@ -10,7 +10,4 @@ The user reviews agent work, and the commit log is the record they read. A small
 
 Line count is not the limit. A feature that adds a dependency and its first use changes more than a handful of lines and is still one behaviour. Lockfiles, generated files and fixtures do not count toward a commit's size at all. A commit too large to review in one sitting is a smell the agent must justify, never a rule it can satisfy by counting.
 
-## Considered options
-
-- **Leaving granularity to the commit style.** Rejected because granularity is what makes the commit the unit of review, and without it `build` adds nothing to an agent committing at will.
-- **A line limit, as Arlo's Commit Notation has for its validated level.** Rejected for the reason above. The limit was set for refactoring in code that is already fully tested.
+Granularity is what makes the commit the unit of review, which is why no commit style can change it. It is what `build` adds to an agent that commits at will.

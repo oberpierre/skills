@@ -1,0 +1,27 @@
+# allow-tools: Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: challenge-plan-skips-build-details
+description: A plan challenge keeps the findings that change what is built or decided, and raises none about how a slice will be built where the plan leaves that to building.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /challenge docs/work/sms/plan.md
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Bash]
+graders:
+  - name: keeps-a-config-finding
+    type: llm
+    criteria: >-
+      At least one finding is about the `[sms]` configuration: that the plan does not say what
+      happens when it is missing or malformed, or that nothing in the code reads `from_number`
+      from it yet.
+  - name: skips-build-details
+    type: llm
+    criteria: >-
+      Every finding concerns what the plan builds or decides: a behaviour, a slice, a decision, a
+      contradiction, missing or malformed configuration or input, or a seam an acceptance test
+      needs and the plan does not provide. The response fails if any finding is only about how a
+      slice will be coded where nothing in the plan depends on the answer: which exceptions to
+      catch, what a log line contains or which logging mechanism to use, or declaring a package as
+      a dependency.

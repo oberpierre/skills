@@ -1,0 +1,30 @@
+# allow-tools: Write Edit Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: slice-ends-with-challenge
+description: Once the approved table is written, slice challenges the plan by path and asks the findings as a Challenge round through grilling.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: Approved, go ahead.
+  max_turns: 25
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: writes-the-table
+    type: regex
+    target: {source: file, path: docs/work/sms/plan.md}
+    pattern: '## Slices\s+\| *Slice *\|'
+  - name: challenges-the-plan-by-path
+    type: tool_used
+    tool: Skill
+    input_match: 'challenge[\s\S]*docs/work/sms/plan\.md slices'
+    min: 1
+  - name: grills-the-findings
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 1
+  - name: asks-a-challenge-round
+    type: regex
+    pattern: '❓ \*\*Q\d+ – Challenge:[\s\S]*➡️'

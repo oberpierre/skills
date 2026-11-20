@@ -1,0 +1,46 @@
+# allow-tools: Write Edit
+# model: opus
+schema_version: "1.0"
+name: slice-proposes-a-table
+description: On a plan with a decision log and no slices, slice proposes a slices table in the plan format, asks the user to approve it or say what to change, and writes nothing.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /slice docs/work/sms/plan.md
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: suggests-a-branch
+    type: regex
+    pattern: 'feature/sms'
+  - name: plan-format-columns
+    type: regex
+    pattern: '\|\s*Slice\s*\|\s*Behaviour\s*\|\s*Acceptance test\s*\|\s*Blocked by\s*\|\s*Status\s*\|\s*Note\s*\|'
+  - name: ids-and-status
+    type: regex
+    pattern: '\|\s*S1\s*\|[^\n]*\|\s*todo\s*\|[\s\S]*\|\s*S2\s*\|[^\n]*\|\s*todo\s*\|'
+  - name: asks-for-approval
+    type: llm
+    criteria: >-
+      The response ends by showing a proposed table of slices and asking the user to approve
+      it or say what to change, and waits for that answer.
+  - name: names-test-and-seam
+    type: regex
+    pattern: '^\| *S\d+ *\|(?! *[^|\n]*\| *`[^`\n]+`,? through [^|\n]+\|)'
+    flags: m
+    match: not_contains
+  - name: reads-the-plan
+    type: tool_used
+    tool: Read
+    input_match: 'docs/work/sms/plan\.md'
+    min: 1
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

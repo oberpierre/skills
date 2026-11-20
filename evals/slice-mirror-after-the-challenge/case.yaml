@@ -1,0 +1,31 @@
+# allow-tools: Write Edit Bash Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: slice-mirror-after-the-challenge
+description: With tracker github, the first write of a table creates no issue before the challenge's answers are recorded.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: "Approved, go ahead."
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: writes-the-table
+    type: regex
+    target: {source: file, path: docs/work/prefix/plan.md}
+    pattern: '## Slices\s+\| *Slice *\|'
+  - name: challenges-the-slices
+    type: tool_used
+    tool: Skill
+    input_match: 'skills:challenge"[\s\S]*"docs/work/prefix/plan\.md slices"'
+    min: 1
+  - name: asks-a-challenge-round
+    type: regex
+    pattern: '❓ \*\*Q\d+ – Challenge:'
+  - name: creates-no-issue-before-the-answers
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue create\b'
+    flags: m
+    match: not_contains

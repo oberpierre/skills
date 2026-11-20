@@ -1,0 +1,37 @@
+# allow-tools: Write Edit
+# model: opus
+schema_version: "1.0"
+name: slice-keeps-done-slices
+description: On a plan that already has slices, slice keeps the done rows as they are and numbers new slices on from the last id.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /slice docs/work/sms/plan.md
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: keeps-the-done-row
+    type: regex
+    pattern: '\| *S1 *\| *When an order ships, a customer with a phone number gets a text through Twilio from the configured `from_number` *\| *`test_texts_the_customer`, through `on_order_shipped` with an `SmsNotifier` in its notifiers *\| *none *\| *done *\| *\|'
+  - name: numbers-on
+    type: regex
+    pattern: '\| *S3 *\|[^\n]*\| *todo *\|'
+  - name: reuses-no-done-id
+    type: regex
+    pattern: '\| *S1 *\|[^\n]*\| *todo *\|'
+    match: not_contains
+  - name: covers-the-opt-out
+    type: llm
+    criteria: >-
+      The response proposes a table of slices in which a slice with status todo carries out
+      the decision that a customer who has opted out of texts gets none.
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

@@ -39,7 +39,7 @@ A body of work with one plan, one branch and one pull request.
 _Avoid_: epic, project
 
 **Plan**:
-The file holding a feature's slices, their status and commit ranges, and its decision log. It is deleted when the feature is done.
+The file holding a feature's slices, their status, and its decision log. It is deleted when the feature is done.
 _Avoid_: spec, ticket list
 
 **Slice**:
@@ -47,7 +47,7 @@ One behaviour built end to end and pinned by an acceptance test, delivered as on
 _Avoid_: task, ticket, story
 
 **Acceptance test**:
-The test that shows a slice's behaviour works, named in the plan before the slice is built.
+The test that shows a slice's behaviour works, named in the plan by its name and the seam it is tested through before the slice is built, beside the slice's behaviour in one sentence. Its code is written when the slice is built.
 
 **Seam**:
 The public boundary a test observes behaviour through, without reaching inside.
@@ -84,7 +84,7 @@ _Avoid_: reviewer
 
 **Gotcha**:
 A surprise about a tool or the codebase, recorded in the agent file so the next agent is spared it.
-_Avoid_: field guide entry, tip
+_Avoid_: tip
 
 **Finding**:
 One thing a challenge reports, with where it is and the evidence that it is wrong. A defect is a finding that a fact settles, and a question is one that needs a decision from the user.

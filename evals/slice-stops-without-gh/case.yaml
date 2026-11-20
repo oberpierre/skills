@@ -1,0 +1,36 @@
+# allow-tools: Write Edit Bash
+# model: opus
+schema_version: "1.0"
+name: slice-stops-without-gh
+description: With tracker github and no usable gh, slice stops and reports it instead of proposing slices or falling back to Markdown.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /slice docs/work/sms/plan.md
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: checks-gh
+    type: tool_used
+    tool: Bash
+    input_match: 'gh\b'
+    min: 1
+  - name: stops-and-reports
+    type: llm
+    criteria: >-
+      The response reports that the GitHub tracker is configured but the gh command is
+      missing or not logged in, and stops without proposing any slices.
+  - name: proposes-no-table
+    type: regex
+    pattern: '\| *S\d+ *\|[^\n]*\| *todo *\|'
+    match: not_contains
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

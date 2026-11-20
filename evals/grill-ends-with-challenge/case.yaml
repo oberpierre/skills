@@ -1,3 +1,5 @@
+# allow-tools: Write Edit Bash(git:*) Bash(test:*)
+# model: opus
 schema_version: "1.0"
 name: grill-ends-with-challenge
 description: When nothing is open, grill writes the decision log to the plan, challenges it by path, and asks the findings as a Challenge round before listing the decisions.

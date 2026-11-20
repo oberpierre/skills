@@ -7,7 +7,7 @@
 
 `grill` calls it on the plan at the end of every session, and its findings become the last round of questions to the user. `build` calls it on each slice before stopping, and its findings become fixups. The user can call it directly on either.
 
-It runs with `context: fork`, so a fresh context does not depend on each caller remembering to dispatch one. A forked context receives the arguments it is called with and none of the conversation, so a caller passes pointers and never pasted content.
+It runs with `context: fork`, so a fresh context does not depend on each caller remembering to dispatch one. A forked context receives the arguments it is called with and none of the conversation, so a caller passes pointers and never pasted content. On Claude Code 2.1.325, a forked context sees nothing of the calling turn, whether the model calls the skill or the user types it, and it has the `Agent` tool, so a lens that needs a context of its own dispatches a subagent.
 
 ## Why
 
@@ -16,7 +16,3 @@ A plan review and a code review share their stance (fresh context, presumption o
 Reviewing in a context that saw the conversation reproduces the conversation's blind spots, which is the failure the review exists to catch. The two lenses of a code challenge see different evidence for the same reason, since lenses that see the same thing miss the same things.
 
 Naming the assertion per criterion is what makes a test too weak for its slice visible, because a criterion with no assertion, or with one that cannot fail, is then a finding rather than an impression.
-
-## History
-
-**2026-11-14.** The fallback to subagents was conditional on a test, which found it unneeded. A probe skill with `context: fork`, told to quote every earlier message it could see, found none of a code word planted in the calling turn, whether the model called it through the Skill tool or the user typed it after an earlier turn. The same probe without `context: fork` quoted the code word. The forked context has the `Agent` tool, so it can dispatch subagents of its own when a later lens needs a separate context. Tested on Claude Code 2.1.325.

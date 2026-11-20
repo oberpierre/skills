@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# A stand-in for gh in eval cases: logged in, offline, and logging every call,
+# one per line, to gh-calls.log at the top of the workspace for graders to read.
+# Existing issues a case needs to show are .gh-issues/<n>.json files there.
+top="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+printf '%s\n' "$*" >> "$top/gh-calls.log"
+case "$1 ${2:-}" in
+  "auth status") echo "github.com: Logged in to github.com account eval (keyring)" ;;
+  "repo view") echo '{"nameWithOwner":"eval/shopnotes"}' ;;
+  "issue view")
+    # A case's scaffold may record an existing issue as .gh-issues/<n>.json.
+    cat "$top/.gh-issues/$3.json" 2>/dev/null \
+      || echo "{\"number\":$3,\"title\":\"Issue $3\",\"body\":\"\",\"state\":\"OPEN\"}" ;;
+  "issue edit")
+    # Keep a recorded issue's title and body in step, so a later view shows the edit.
+    f="$top/.gh-issues/$3.json"
+    [[ -f $f ]] && python3 -I -c '
+import json, sys
+p, args = sys.argv[1], sys.argv[2:]
+d = json.load(open(p))
+for flag, key in (("--title", "title"), ("--body", "body")):
+    if flag in args[:-1]:
+        d[key] = args[args.index(flag) + 1]
+open(p, "w").write(json.dumps(d) + "\n")' "$f" "${@:4}"
+    echo "https://github.com/eval/shopnotes/issues/$3" ;;
+  "issue close"|"issue reopen")
+    # Keep a recorded issue's state in step, so a later view shows the change.
+    state=$([[ $2 == close ]] && echo CLOSED || echo OPEN)
+    f="$top/.gh-issues/$3.json"
+    [[ -f $f ]] && python3 -I -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["state"]=sys.argv[2]; open(p,"w").write(json.dumps(d)+"\n")' "$f" "$state"
+    echo "✓ $([[ $2 == close ]] && echo Closed || echo Reopened) issue eval/shopnotes#$3" ;;
+  "issue create")
+    n=$(( $(cat "$top/.gh-next" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$top/.gh-next"
+    echo "https://github.com/eval/shopnotes/issues/$n" ;;
+esac
+exit 0
