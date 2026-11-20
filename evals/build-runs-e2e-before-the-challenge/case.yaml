@@ -1,0 +1,47 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-runs-e2e-before-the-challenge
+description: With e2e configured, /build S1 has the slice built and the e2e command run exactly once, after the behaviour exists and so passing, then marks the row done and stops for review.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1
+  max_turns: 60
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: builds-the-behaviour
+    type: regex
+    target: {source: file, path: notify/email.py}
+    pattern: 'sender'
+  - name: writes-the-acceptance-test
+    type: regex
+    target: {source: file, path: tests/test_email.py}
+    pattern: 'def test_an_email_names_its_sender_when_it_has_one'
+  - name: runs-e2e-exactly-once-and-it-passes
+    type: regex
+    target: {source: file, path: .eval-e2e.log}
+    pattern: '^e2e ok\s*$'
+  - name: starts-a-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
+  - name: commits-the-plan-in-the-first-commit
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A[^\n]*docs/work/shipping\-notes/plan\.md'
+  - name: sets-the-row-to-done-in-the-last-commit-only
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A(?:(?![^\n]*done:S1)[^\n]*\n)*[^\n]*done:S1[^\n]*\n*\Z'
+  - name: commits-a-test-before-or-with-the-code
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A(?:(?![^\n]*(?:tests/|notify/))[^\n]*\n)*(?![^\n]*tests/)[^\n]*notify/'
+    match: not_contains
