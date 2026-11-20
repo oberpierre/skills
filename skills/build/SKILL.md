@@ -32,7 +32,15 @@ Check the file before you build anything, and stop, naming each problem and the 
 
 Never guess a value from the repository. An unknown `build_model` cannot be checked in advance: when the coding agent fails to start on it, stop with that error.
 
-Read the plan's slices table and its `**Branch:**` line. The slice must be `todo`.
+Read the plan's slices table and its `**Branch:**` line. Check the plan before you build anything, and stop, naming each problem and building nothing, when:
+
+- the plan has no `**Branch:**` line or no slices table;
+- the table breaks the rules `slice` sets for it: a missing column, a status other than `todo`, `done` or `rework`, an id used twice, or a `Blocked by` that names a slice that is not in the table;
+- a `rework` row has an empty note;
+- the slice named is not in the table;
+- `tracker` is `github` and the table has no `Issue` column, and then also name `/slice` to mirror the slices.
+
+Never repair the plan yourself, since that would change what the user approved. The slice must be `todo`.
 
 Read the default branch from `origin/HEAD`. When you are on the default branch, create the plan's branch from it and switch to it. When you are already on the plan's branch, stay on it. Note the commit you start from with `git rev-parse HEAD`.
 
