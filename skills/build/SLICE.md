@@ -35,3 +35,13 @@ Then reply with:
 - the commits, as `git log --oneline --reverse <start>..HEAD` prints them;
 - the acceptance test and the assertion that pins the behaviour;
 - anything you could not verify.
+
+## Findings
+
+When the message gives `Findings:`, they are defects a challenge found in your slice. For each, in order:
+
+1. Write the test that shows it first, when it is a behaviour, and see it fail.
+2. Fix it, run the gate, and commit as the commit style says for a correction.
+3. Run the gate again.
+
+Finish with the plan's row for the slice set to `done` in the slice's real last commit: when a correction stays a commit of its own, move the change onto it, so no earlier commit sets `done`. Reply as above.

@@ -62,13 +62,23 @@ Leave out the `E2E` line when `e2e` is not configured.
 
 Wait for its report. Do not build, fix or commit anything yourself.
 
+## Challenging the slice
+
+Once the agent reports the slice built, challenge it once, with both lenses: call the `challenge` skill with `<plan path> <slice id> <start>..HEAD`. Note the commit you are on with `git rev-parse HEAD` first, as `<built>`.
+
+- **Defect findings** go back to the same coding agent, resumed with SendMessage, as the findings' text and the instruction to read `Findings:` in `SLICE.md`. A fact settles a defect, so you do not ask the user about one. It applies them as the commit style says and moves the `done` marking onto the slice's real last commit.
+- **Question findings** you keep for the stop.
+
+When history was rewritten, run the gate on every commit of `<start>..HEAD`, for example `git rebase --exec '<gate>' <start>`, not only on the tip. When one is red, run `git rebase --abort`, restore the branch to `<built>` with `git reset --hard <built>` if the abort left it elsewhere, and stop, naming the commit that went red and the kind of failure. Never try to fix it mid-rebase.
+
 ## Stopping for review
 
-When the agent reports the slice built, check that the slice's row now says `done` and that `git log --oneline <start>..HEAD` lists its commits. Then tell the user:
+When the agent reports the slice built, check that the last commit of `git log --oneline <start>..HEAD` is the one that sets the slice's row to `done`. Then tell the user:
 
 - the slice and its behaviour, in one sentence;
 - the branch and the commits, oldest first, as `git log --oneline --reverse <start>..HEAD` prints them;
 - the acceptance test that pins the behaviour;
-- anything the agent could not verify.
+- anything the agent could not verify;
+- the challenge's question findings, put as a round through the `grilling` skill.
 
 Ask the user to review the commits, and stop.
