@@ -1,10 +1,10 @@
 # Build runs serially, one fresh subagent per slice
 
-`build` builds the slices of a plan one after another, in the order the plan gives. Each slice runs in a fresh subagent that receives pointers only: the plan's path, the slice's id and the commit the slice starts from. The session that runs `build` holds the subagents' reports and nothing else.
+`build` builds the slices of a plan one after another, in the order the plan gives. `/build S3` also builds a slice while an earlier one is still `todo`, once every slice in its `Blocked by` is `done`, and refuses a slice with an unfinished blocker by naming it. Each slice runs in a fresh subagent that receives pointers only: the plan's path, the slice's id and the commit the slice starts from. The session that runs `build` holds the subagents' reports and nothing else.
 
 The argument decides the scope. `/build S3` builds one slice, has it challenged, applies the fixes and stops for the user's review. `/build <feature>` builds every remaining slice, challenges each, runs one challenge over the whole branch at the end and stops once. With no argument, `build` lists the slices with their status and suggests the next one.
 
-No commit range is recorded. `build` keeps the commit a slice starts from in its own context and challenges `<start>..HEAD` once the slice is built. It sets the slice's row in the plan to `done` in the slice's own last commit, so a slice found later runs from the commit that marked the slice before it `done` to the last commit that marked it `done`, and a rework rewrites a slice in place. The range of a whole feature starts at the merge-base with the default branch.
+No commit range is recorded. `build` keeps the commit a slice starts from in its own context and challenges `<start>..HEAD` once the slice is built. It sets the slice's row in the plan to `done` in the slice's own last commit, so a slice found later runs from the commit that marked the slice built before it, the one earlier in the branch's history, `done` to the last commit that marked it `done`, and a rework rewrites a slice in place. The range of a whole feature starts at the merge-base with the default branch.
 
 ## Why
 
