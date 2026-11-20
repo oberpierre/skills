@@ -10,7 +10,7 @@ Shipped-order messages link the tracking page and say which carrier has the parc
 |---|---|---|---|---|---|
 | S1 | A shipped order's message ends with its tracking link when the order has one | `test_a_shipped_order_message_links_its_tracking_page`, through `on_order_shipped` | none | todo | |
 | S2 | A shipped order's message names the carrier after the tracking link | `test_a_shipped_order_message_names_the_carrier`, through `on_order_shipped` | S1 | todo | |
-| S3 | An email names its sender when the notifier has one | `test_an_email_names_its_sender_when_it_has_one`, through `EmailNotifier.send` | none | todo | |
+| S3 | An email names its sender when the notifier has one | `test_an_email_names_its_sender_when_it_has_one` in `tests/test_email.py`, through `EmailNotifier.send` | none | todo | |
 
 ## Decision log
 
