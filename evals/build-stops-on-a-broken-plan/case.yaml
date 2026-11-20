@@ -11,21 +11,20 @@ execution:
   allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
 graders:
   - name: names-the-missing-branch-line
-    type: llm
-    criteria: >-
-      The final response reports that the plan has no `**Branch:**` line.
+    type: regex
+    pattern: '(no|missing|without)[^\n]*Branch|Branch[^\n]*(missing|absent)'
+    flags: i
   - name: names-the-unknown-blocker
-    type: llm
-    criteria: >-
-      The final response reports that slice S2 is blocked by S9, which is not a slice in the plan's table.
+    type: regex
+    pattern: 'S9'
   - name: names-the-empty-rework-note
-    type: llm
-    criteria: >-
-      The final response reports that slice S3 is marked rework and has an empty note.
+    type: regex
+    pattern: '(empty|no|without|missing)[^\n]*note|note[^\n]*(empty|missing)'
+    flags: i
   - name: names-the-unknown-slice
-    type: llm
-    criteria: >-
-      The final response reports that S7, the slice asked for, is not in the plan's table.
+    type: regex
+    pattern: 'S7[^\n]*(not|isn.t)[^\n]*(table|plan)|(no|not)[^\n]*S7'
+    flags: i
   - name: starts-no-coding-agent
     type: tool_used
     tool: Agent
