@@ -1,1 +1,3 @@
+gate: scripts/gate.sh
+commit_style: arlo-features
 tracker: github
