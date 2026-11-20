@@ -100,8 +100,16 @@ for case_yaml in "$root"/evals/*/case.yaml; do
     fail "evals/$name/case.yaml does not start with '# allow-tools:'"
     continue
   fi
+  # With nothing granted, evals/run.sh's --allow-tools would swallow the next option.
+  if [[ "${first#\# allow-tools:}" =~ ^[[:space:]]*$ ]]; then
+    fail "evals/$name/case.yaml grants no tool on its '# allow-tools:' line"
+  fi
   if [[ "$(sed -n 2p "$case_yaml")" != "# model: "[a-z]* ]]; then
     fail "evals/$name/case.yaml does not have '# model: <alias>' on its second line"
+  fi
+  # The grant check below reads only a one-line list, so a block list would pass it unchecked.
+  if grep -Eq '^ *allowed_tools:' "$case_yaml" && ! grep -Eq '^ *allowed_tools: *\[.*\] *$' "$case_yaml"; then
+    fail "evals/$name/case.yaml writes allowed_tools as anything but a one-line [ ... ] list"
   fi
   allowed="$(sed -n 's/^ *allowed_tools: *\[\(.*\)\]/\1/p' "$case_yaml" | tr -d ' ')"
   for tool in Write Edit Bash; do
