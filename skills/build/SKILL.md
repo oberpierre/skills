@@ -25,7 +25,7 @@ Read the default branch from `origin/HEAD`. When you are on the default branch, 
 
 ## Building
 
-Start one coding agent with the Agent tool, as a general-purpose agent on the `build_model` model. Hand it pointers only, never pasted content:
+Start one coding agent with the Agent tool, as a general-purpose agent on the `build_model` model, in the foreground (`run_in_background: false`), so its report comes back as the tool's result and your turn does not end while the slice is being built. Hand it pointers only, never pasted content:
 
 ```
 Read <absolute path of SLICE.md in this skill's folder> and follow it.
