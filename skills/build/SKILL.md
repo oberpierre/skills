@@ -42,7 +42,7 @@ Read the plan's slices table and its `**Branch:**` line. Check the plan before y
 
 Never repair the plan yourself, since that would change what the user approved. The slice must be `todo`.
 
-Read the default branch from `origin/HEAD`. When you are on the default branch, create the plan's branch from it and switch to it. When you are already on the plan's branch, stay on it. Note the commit you start from with `git rev-parse HEAD`.
+Read the default branch from `origin/HEAD`, and when it is not set, ask the user which branch is the default and stop. When you are on the default branch, create the plan's branch from it and switch to it. When you are already on the plan's branch, stay on it. Note the commit you start from with `git rev-parse HEAD`.
 
 ## Building
 
