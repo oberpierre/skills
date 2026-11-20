@@ -1,0 +1,59 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-builds-out-of-order
+description: With S1 and S2 still todo, /build S3 builds S3, whose Blocked by is none, on the plan's branch, marks only S3 done and leaves S1 and S2 todo, and stops for review.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S3
+  max_turns: 60
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: switches-to-the-plan-branch
+    type: regex
+    target: {source: file, path: .git/HEAD}
+    pattern: 'ref: refs/heads/feature/shipping-notes'
+  - name: builds-the-behaviour
+    type: regex
+    target: {source: file, path: notify/email.py}
+    pattern: 'sender'
+  - name: writes-the-acceptance-test
+    type: regex
+    target: {source: file, path: tests/test_email.py}
+    pattern: 'def test_an_email_names_its_sender_when_it_has_one'
+  - name: leaves-s1-and-s2-todo
+    type: regex
+    target: {source: file, path: docs/work/shipping-notes/plan.md}
+    pattern: '^\| *S[12] *\|[^\n]*\| *(done|rework) *\|'
+    flags: m
+    match: not_contains
+  - name: builds-nothing-of-s1-or-s2
+    type: regex
+    target: {source: file, path: notify/shipping.py}
+    pattern: 'tracking|carrier'
+    flags: i
+    match: not_contains
+  - name: starts-a-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
+  - name: commits-the-plan-in-the-first-commit
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A[^\n]*docs/work/shipping\-notes/plan\.md'
+  - name: sets-the-row-to-done-in-the-last-commit-only
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A(?:(?![^\n]*done:S3)[^\n]*\n)*[^\n]*done:S3[^\n]*\n*\Z'
+  - name: commits-a-test-before-or-with-the-code
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A(?:(?![^\n]*(?:tests/|notify/))[^\n]*\n)*(?![^\n]*tests/)[^\n]*notify/'
+    match: not_contains
