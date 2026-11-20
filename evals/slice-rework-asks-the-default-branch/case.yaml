@@ -1,0 +1,35 @@
+# allow-tools: Write Edit Bash
+# model: opus
+schema_version: "1.0"
+name: slice-rework-asks-the-default-branch
+description: When a request names a done slice and origin/HEAD is not set, slice asks which branch is the default and stops, marking nothing rework and asking no round.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /slice docs/work/sms/plan.md squash S1 and S2 into one slice
+  max_turns: 15
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit, Bash]
+graders:
+  - name: asks-the-default-branch
+    type: llm
+    criteria: >-
+      The response asks the user which branch is the repository's default branch, and does not
+      propose how to squash S1 and S2.
+  - name: marks-no-rework
+    type: regex
+    pattern: '\| *rework *\|'
+    match: not_contains
+  - name: asks-no-round
+    type: regex
+    pattern: '❓ \*\*Q1'
+    match: not_contains
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
