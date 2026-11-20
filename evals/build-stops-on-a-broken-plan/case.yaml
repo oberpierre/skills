@@ -1,0 +1,53 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-stops-on-a-broken-plan
+description: When the plan has no Branch line, a slice blocked by a slice that does not exist, a rework row with no note, and the named slice is not in the table, /build S7 stops naming each problem before it creates a branch, starts a coding agent or commits.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S7
+  max_turns: 30
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: names-the-missing-branch-line
+    type: llm
+    criteria: >-
+      The final response reports that the plan has no `**Branch:**` line.
+  - name: names-the-unknown-blocker
+    type: llm
+    criteria: >-
+      The final response reports that slice S2 is blocked by S9, which is not a slice in the plan's table.
+  - name: names-the-empty-rework-note
+    type: llm
+    criteria: >-
+      The final response reports that slice S3 is marked rework and has an empty note.
+  - name: names-the-unknown-slice
+    type: llm
+    criteria: >-
+      The final response reports that S7, the slice asked for, is not in the plan's table.
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: stays-on-main
+    type: regex
+    target: {source: file, path: .git/HEAD}
+    pattern: 'ref: refs/heads/main'
+  - name: commits-nothing
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/main}
+    pattern: '\t(?!commit \(initial\): Initial commit$|commit: Add the gate$|Branch: renamed )'
+    flags: m
+    match: not_contains
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
