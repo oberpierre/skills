@@ -1,0 +1,42 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-applies-challenge-defects
+description: Under arlo, /build S1 challenges the slice once with both lenses and has the defects applied as commits of their own behind the gate, so the range's last commit is the one that sets the row to done, then stops for review.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1
+  max_turns: 80
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: challenges-the-slice-once
+    type: tool_used
+    tool: Skill
+    input_match: 'challenge'
+    min: 1
+    max: 1
+  - name: challenges-with-the-plan-path-and-the-slice
+    type: tool_used
+    tool: Skill
+    input_match: 'docs/work/tracking/plan\.md\s+S1\s'
+    min: 1
+  - name: the-last-commit-sets-the-row-to-done
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '^(?:other\n)*(?:other\n)?done\n?$'
+  - name: more-than-one-commit-after-the-challenge
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/tracking}
+    pattern: '\tcommit[^:\n]*: [^\n]*\n(?:[^\n]*\n)*?[^\n]*\tcommit[^:\n]*: '
+  - name: marks-s1-done
+    type: regex
+    target: {source: file, path: docs/work/tracking/plan.md}
+    pattern: '^\| *S1 *\|[^\n]*\| *done *\|'
+    flags: m
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
