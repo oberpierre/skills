@@ -55,7 +55,10 @@ Slice: <slice id>
 Start: <start commit>
 Gate: <gate command>
 Commit style: <absolute path of the style file>
+E2E: <the e2e command>
 ```
+
+Leave out the `E2E` line when `e2e` is not configured.
 
 Wait for its report. Do not build, fix or commit anything yourself.
 
