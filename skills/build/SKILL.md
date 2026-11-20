@@ -18,6 +18,19 @@ Read `.agents/config.yml`:
 - `gate` is the command that checks the whole repository. A commit is made only when it passes.
 - `commit_style` names a preset, `arlo` or `arlo-features`, which is the file of that name in the `styles` folder beside this skill, or a path to a style file in the repository.
 - `build_model` is the model the coding agent runs on, `sonnet` when the key is missing.
+- `e2e`, when present, is a command like `gate`.
+- `tracker` is `markdown` or `github`, `markdown` when the key is missing.
+
+Check the file before you build anything, and stop, naming each problem and the line to add or change, when:
+
+- the file is not valid YAML, or `gate` or `commit_style` is missing;
+- `gate` or `e2e` is empty or not a string;
+- `commit_style` names neither a preset nor an existing file;
+- the style file, or the preset, `extends:` a style that itself extends another;
+- `tracker` has any other value;
+- `tracker` is `github` and `gh auth status` fails or `gh` is missing.
+
+Never guess a value from the repository. An unknown `build_model` cannot be checked in advance: when the coding agent fails to start on it, stop with that error.
 
 Read the plan's slices table and its `**Branch:**` line. The slice must be `todo`.
 
