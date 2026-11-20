@@ -12,7 +12,7 @@ execution:
 graders:
   - name: asks-which-branch-is-the-default
     type: regex
-    pattern: 'default branch'
+    pattern: 'which branch[^\n]*default|default[^\n]*which branch'
     flags: i
   - name: stays-on-main
     type: regex
