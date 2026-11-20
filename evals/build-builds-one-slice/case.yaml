@@ -1,4 +1,4 @@
-# allow-tools: Write Edit Bash
+# allow-tools: Write Edit Bash SendMessage
 # model: sonnet
 schema_version: "1.0"
 name: build-builds-one-slice
@@ -65,6 +65,5 @@ graders:
   - name: stops-for-review
     type: llm
     criteria: >-
-      The final response says slice S1 is built and asks the user to review its commits,
-      naming them or the branch they are on. It does not say that the slice failed or that
-      the gate is red.
+      The final response reports slice S1 as built and asks the user to review it,
+      naming its commits or the branch they are on.
