@@ -1,0 +1,35 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-stops-on-another-branch
+description: On a branch that is neither the default nor the plan's, /build S1 says so, asks the user and stops before it switches branch, starts a coding agent or commits.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1
+  max_turns: 30
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: names-the-branch
+    type: regex
+    pattern: 'feature/other'
+  - name: stays-on-the-other-branch
+    type: regex
+    target: {source: file, path: .git/HEAD}
+    pattern: 'ref: refs/heads/feature/other'
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
+
