@@ -1,6 +1,6 @@
 # Building one slice
 
-You build one slice of a feature's plan. The message that pointed you here gives the plan, the slice id, the commit the slice starts from, the gate command and the commit style file. You work on the branch you are on: switch, create or push no branch.
+You build one slice of a feature's plan. The message that pointed you here gives the plan, the slice id, the commit the slice starts from, the gate command and the commit style file, and optionally an `E2E` command. You work on the branch you are on: switch, create or push no branch.
 
 ## Read first
 
@@ -21,6 +21,10 @@ The slice's acceptance test is named in its row, with the seam it observes the b
 A commit changes one behaviour and carries the test that pins it. Most slices are one or two commits. Never commit with `--no-verify`, and never weaken, skip or delete a test to make the gate pass.
 
 When the plan file is not yet committed, add it to the slice's first commit.
+
+## End-to-end check
+
+When the message gives an `E2E` command, run it once, after the slice's last behaviour passes the gate and before you commit it. Never run it earlier or again for a green result. When it fails, fix the cause within the slice, as a change to the code or a test that belongs to the slice, run the gate, and run `E2E` once more. Commit when both pass.
 
 ## Done
 
