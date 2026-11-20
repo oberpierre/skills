@@ -1,0 +1,37 @@
+# allow-tools: Write Edit Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: challenge-plan-lens-names-assertions
+description: Given a plan, a slice id and a range, a challenge runs the plan lens beside the diff lens, names the assertion that pins the criterion the test covers, and reports the criterion no assertion pins.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /challenge docs/work/sms/plan.md S1 HEAD~1..HEAD
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: names-the-assertion-that-pins-the-text
+    type: regex
+    pattern: 'texts\[0\]\.to\s*==|\.to\s*==\s*"\+4915123"|assert[^\n]*\.to\b'
+  - name: reports-the-criterion-with-no-assertion
+    type: llm
+    criteria: >-
+      Slice S1 promises that SmsNotifier.send texts the customer's number from the configured
+      from_number. Its test asserts the number texted and the body, and never asserts the sender
+      number. The response passes if it reports, as a finding, that the from_number criterion
+      (the text coming from the configured sender number) has no assertion that pins it, and it
+      names an assertion of the test as the one pinning the criterion that the customer is texted.
+  - name: states-a-kind
+    type: regex
+    pattern: '\b(defect|question)\b'
+    flags: i
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
