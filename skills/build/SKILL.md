@@ -1,13 +1,13 @@
 ---
 name: build
 description: Build one slice of a feature's plan, or every remaining slice, test-first and one commit per behaviour behind the gate, challenge the result, then stop for your review.
-argument-hint: "[slice id [comment] or plan or close]"
+argument-hint: "[plan] [S<n> [comment] | close]"
 disable-model-invocation: true
 ---
 
 # Build: $ARGUMENTS
 
-Build the slice the argument names, such as `S1`, from the feature's plan. When words follow the slice id, they are a review comment, and you build nothing: see "When the slice is a rework, or there is a review comment". When `close` is the first word, or the second after a plan, it is the command and not a slice or a comment: read `CLOSE.md` in this skill's folder and follow it instead of building. Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop. With no argument, read `LIST.md` in this skill's folder and follow it instead of everything below: it lists the slices and suggests the next one. When the argument is a plan, a path or a folder name under `docs/work/`, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below.
+Read `ARGUMENTS.md` in this skill's folder first and follow it: it says which plan, slice, comment or command the argument is. Build the slice it names, such as `S1`, from the feature's plan. When words follow the slice id, they are a review comment, and you build nothing: see "When the slice is a rework, or there is a review comment". When `close` is the command, read `CLOSE.md` in this skill's folder and follow it instead of building. When the argument is only a plan, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below. With no other word, `LIST.md` lists the slices of the plan, or of every plan, and suggests the next one, and everything below is skipped.
 
 You do not write the slice's code yourself. A coding agent builds it, and you hold its report and nothing else, so you stay small enough to run a whole feature.
 
