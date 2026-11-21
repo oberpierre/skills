@@ -1,13 +1,13 @@
 ---
 name: build
-description: Build an approved slice from a feature's plan, test-first and one commit per behaviour behind the gate, then stop for your review.
-argument-hint: "[slice id]"
+description: Build one slice of a feature's plan, or every remaining slice, test-first and one commit per behaviour behind the gate, challenge the result, then stop for your review.
+argument-hint: "[slice id or plan]"
 disable-model-invocation: true
 ---
 
 # Build: $ARGUMENTS
 
-Build the slice the argument names, such as `S1`, from the feature's plan. Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop.
+Build the slice the argument names, such as `S1`, from the feature's plan. Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop. When the argument is a plan, a path or a folder name under `docs/work/`, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below.
 
 You do not write the slice's code yourself. A coding agent builds it, and you hold its report and nothing else, so you stay small enough to run a whole feature.
 
@@ -40,7 +40,7 @@ Read the plan's slices table and its `**Branch:**` line. Check the plan before y
 - the slice named is not in the table;
 - `tracker` is `github` and the table has no `Issue` column, and then also name `/slice` to mirror the slices.
 
-Never repair the plan yourself, since that would change what the user approved. The slice must be `todo`.
+Never repair the plan yourself, since that would change what the user approved. A slice named by id must be `todo`, and a plan builds every slice that is `todo` or `rework`.
 
 Read the default branch from `origin/HEAD`, and when it is not set, ask the user which branch is the default and stop. When you are on the default branch, create the plan's branch from it and switch to it. When you are already on the plan's branch, stay on it. Note the commit you start from with `git rev-parse HEAD`.
 
@@ -58,9 +58,7 @@ Commit style: <absolute path of the style file>
 E2E: <the e2e command>
 ```
 
-Leave out the `E2E` line when `e2e` is not configured.
-
-Wait for its report. Do not build, fix or commit anything yourself.
+Leave out the `E2E` line when `e2e` is not configured. Wait for its report. Do not build, fix or commit anything yourself.
 
 ## Challenging the slice
 
@@ -95,6 +93,6 @@ When the agent reports the slice built, check that the last commit of `git log -
 - the branch and the commits, oldest first, as `git log --oneline --reverse <start>..HEAD` prints them;
 - the acceptance test that pins the behaviour;
 - anything the agent could not verify;
-- the challenge's question findings, put as a round through the `grilling` skill.
+- the queued questions, oldest first, put as one round, calling the Skill tool with `grilling`: every question you must put to the user, whether a challenge's finding, an agent's question or a wrong premise, is appended to the queue as it arises, and any round puts the whole queue.
 
-Ask the user to review the commits, and stop.
+Ask the user to review the commits, and stop. For a plan, `FEATURE.md` says what the stop reports instead.

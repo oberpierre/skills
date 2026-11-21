@@ -1,0 +1,83 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-builds-the-whole-feature
+description: With S1 done, S2 a rework and S3 todo, /build shipping-notes builds S2 and S3 with a coding agent each and leaves S1 alone, challenges each once, then challenges the whole branch against the whole plan once, and stops once with every slice done and named.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build shipping-notes
+  max_turns: 200
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: builds-on-the-plan-branch
+    type: regex
+    target: {source: file, path: .git/HEAD}
+    pattern: 'ref: refs/heads/feature/shipping-notes'
+  - name: starts-a-coding-agent-per-slice-built
+    type: tool_used
+    tool: Agent
+    min: 2
+  - name: challenges-each-slice-built
+    type: tool_used
+    tool: Skill
+    input_match: 'plan\.md\s+S\d\s'
+    min: 2
+  - name: challenges-the-whole-branch-once
+    type: tool_used
+    tool: Skill
+    input_match: 'plan\.md\s+(?!S\d)[^\s"]+\.\.'
+    min: 1
+    max: 1
+  - name: puts-at-most-one-round
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 0
+    max: 1
+  - name: rebuilds-the-reworked-carrier-line
+    type: regex
+    target: {source: file, path: notify/shipping.py}
+    pattern: 'Carrier: '
+  - name: builds-the-sender
+    type: regex
+    target: {source: file, path: notify/email.py}
+    pattern: 'sender'
+  - name: never-rebuilds-the-done-slice
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '^S1$'
+    flags: m
+    match: not_contains
+  - name: sets-the-reworked-slice-to-done-in-a-commit
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '^S2$'
+    flags: m
+  - name: sets-s3-to-done-in-a-commit
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '^S3$'
+    flags: m
+  - name: leaves-no-slice-todo-or-rework
+    type: regex
+    target: {source: file, path: docs/work/shipping-notes/plan.md}
+    pattern: '^\| *S[123] *\|[^\n]*\| *(todo|rework) *\|'
+    flags: m
+    match: not_contains
+  - name: the-stop-names-every-slice-built-with-its-test
+    type: regex
+    target: last_message
+    pattern: '^(?=[\s\S]*test_a_shipped_order_message_names_the_carrier)(?=[\s\S]*test_an_email_names_its_sender_when_it_has_one)'
+  - name: the-stop-lists-the-whole-branch
+    type: llm
+    criteria: >-
+      The final response lists the commits of the whole branch, from the first slice built to
+      the last, and not only those of the last slice, and names the acceptance test of each
+      slice built.
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
