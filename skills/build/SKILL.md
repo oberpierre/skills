@@ -71,6 +71,16 @@ Once the agent reports the slice built, challenge it once, with both lenses: cal
 
 When the commit style makes corrections fixups, squash them with `GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash --exec '<gate>' <start>`, which runs the gate on every rewritten commit and not only on the tip. When one is red, run `git rebase --abort`, restore the branch to `<built>` with `git reset --hard <built>` if the abort left it elsewhere, and stop, naming the commit that went red and the kind of failure. Never try to fix it mid-rebase.
 
+## When the gate stays red
+
+When the agent reports that the gate stayed red, it has left the red behaviour's attempt uncommitted and the behaviours that went green earlier committed. Fix nothing yourself. Tell the user the failing command, the kind of failure it reports, written as the bold phrase of the matching item below, and the commits already in `<start>..HEAD`, as `git log --oneline --reverse <start>..HEAD` prints them, or that there are none:
+
+- **A defect in its own code:** offer to debug it together, and wait. When the user accepts, resume the same agent with SendMessage and debug with the user.
+- **A broken environment:** say what is missing, and stop.
+- **A wrong premise:** put the contradiction to the user as a round, calling the Skill tool with `grilling`. Write the answer into the plan's decision log, leaving the edit uncommitted, and resume the same agent with SendMessage as `Premise answer:` followed by the question and the answer, with the instruction to read `Premise answer:` in `SLICE.md`. When the answer changes a slice's behaviour, stop and name `/slice` instead.
+
+For a wrong premise, end your report with a line that starts `For retro:` and names the question the planning missed.
+
 ## Stopping for review
 
 When the agent reports the slice built, check that the last commit of `git log --oneline <start>..HEAD` is the one that sets the slice's row to `done`. Then tell the user:

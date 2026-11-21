@@ -16,7 +16,7 @@ The slice's acceptance test is named in its row, with the seam it observes the b
 1. Write the test first, through the seam. For the slice's main behaviour, that is the acceptance test, under the name the row gives.
 2. Run the gate and see the new test fail, for the reason the behaviour is missing.
 3. Write the least code that makes it pass.
-4. Run the gate. Commit only when it passes, with a message in the commit style.
+4. Run the gate on its own, read its exit status, and commit only when it passes, in a separate command and with a message in the commit style. A commit in the same command as the gate, or after a pipe that hides the gate's status, commits red code.
 
 A commit changes one behaviour and carries the test that pins it. Most slices are one or two commits. Never commit with `--no-verify`, and never weaken, skip or delete a test to make the gate pass.
 
@@ -25,6 +25,22 @@ When the plan file is not yet committed, add it to the slice's first commit.
 ## End-to-end check
 
 When the message gives an `E2E` command, run it once, after the slice's last behaviour passes the gate and before you commit it. Never run it earlier or again for a green result. When it fails, fix the cause within the slice, as a change to the code or a test that belongs to the slice, run the gate, and run `E2E` once more. Commit when both pass.
+
+## A red gate
+
+When the gate fails after a change to the code, fix the cause and run it again. The red you expect before writing code does not count, and only failures after a code change do: stop at the third, per behaviour. The same cap covers a failing `E2E` command. Stop at once, without spending attempts, when you see before or during your first attempt that the plan or a decision contradicts the code or the data.
+
+When you stop, commit nothing for the behaviour that is red and leave its changes in the working tree. Behaviours that went green earlier stay committed. Never weaken, skip or delete a test, or change the gate, to turn it green.
+
+Reply with the failing command, the output that matters, what you tried, the commits already in `<start>..HEAD`, and the kind of failure you believe it is:
+
+- **a defect in your own code**;
+- **a wrong premise**, where the plan or a decision contradicts what the code or the data does: quote both sides, and put the question the user must answer;
+- **a broken environment**, such as a missing dependency, a service that is down or an expired credential: say what is missing.
+
+## Premise answer:
+
+When the message gives `Premise answer:`, the user has answered the question you stopped on, and the plan's decision log now holds the answer. Read the decision log again, keep your changes in the working tree, and build the behaviour again with a fresh count of three attempts. The plan edit is uncommitted, and your next commit includes it.
 
 ## Done
 

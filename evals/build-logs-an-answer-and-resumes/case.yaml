@@ -1,0 +1,30 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-logs-an-answer-and-resumes
+description: After the user answers a wrong-premise round with a choice that leaves the slice's behaviour as planned, build writes the answer into the plan's decision log and resumes the same coding agent with SendMessage, rather than starting a new one.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: >-
+    Q1 yes: update the old test's Recorder to take order_id, keeping its assertion. The slice
+    stays as planned.
+  max_turns: 40
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: logs-the-answer-in-the-decision-log
+    type: regex
+    target: {source: file, path: docs/work/order-numbers/plan.md}
+    pattern: 'Recorder[^\n]*order_id'
+  - name: resumes-the-same-agent-with-the-premise-answer
+    type: tool_used
+    tool: SendMessage
+    input_match: 'a4add88d9de3a01b2[\s\S]*Premise answer:'
+    min: 1
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0

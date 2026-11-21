@@ -1,0 +1,35 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-names-slice-when-an-answer-changes-it
+description: After the user answers a wrong-premise round with a choice that changes the slice's behaviour, build stops and names /slice, and neither resumes the coding agent nor starts a new one.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: >-
+    Q1 option 3: give order_id a default of None so the old Recorder keeps working, which
+    means S1 no longer requires the third parameter.
+  max_turns: 40
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: names-slice
+    type: regex
+    target: last_message
+    pattern: '/slice'
+  - name: does-not-resume-the-agent
+    type: tool_used
+    tool: SendMessage
+    min: 0
+    max: 0
+  - name: starts-no-new-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: commits-nothing
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\tcommit[^:\n]*: (?!Add the gate$|Initial commit$)'
+    flags: m
+    match: not_contains
