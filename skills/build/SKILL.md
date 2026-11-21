@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Build: $ARGUMENTS
 
-Build the slice the argument names, such as `S1`, from the feature's plan. When words follow the slice id, they are a review comment, and you build nothing: see "When the slice is a rework, or there is a review comment". When `close` is the first word, or the second after a plan, it is the command and not a slice or a comment: read `CLOSE.md` in this skill's folder and follow it instead of building. Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop. When the argument is a plan, a path or a folder name under `docs/work/`, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below.
+Build the slice the argument names, such as `S1`, from the feature's plan. When words follow the slice id, they are a review comment, and you build nothing: see "When the slice is a rework, or there is a review comment". When `close` is the first word, or the second after a plan, it is the command and not a slice or a comment: read `CLOSE.md` in this skill's folder and follow it instead of building. Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop. With no argument, read `LIST.md` in this skill's folder and follow it instead of everything below: it lists the slices and suggests the next one. When the argument is a plan, a path or a folder name under `docs/work/`, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below.
 
 You do not write the slice's code yourself. A coding agent builds it, and you hold its report and nothing else, so you stay small enough to run a whole feature.
 
