@@ -38,6 +38,17 @@ Reply with the failing command, the output that matters, what you tried, the com
 - **a wrong premise**, where the plan or a decision contradicts what the code or the data does: quote both sides, and put the question the user must answer;
 - **a broken environment**, such as a missing dependency, a service that is down or an expired credential: say what is missing.
 
+## A question no decision answers
+
+When the behaviour needs a choice the plan and its decision log do not make, such as where a piece of data lives or which of two designs to follow, do not choose it yourself. When no decision in the plan answers it, commit nothing for the behaviour that needs the choice, leave any changes in the working tree, and reply with:
+
+- `Question:` and the question, with the options you see and the one you would recommend;
+- the commits already in `<start>..HEAD`.
+
+## Answer:
+
+When the message gives `Answer:`, the user has answered that question, and the plan's decision log now holds the answer. Read the decision log again, keep your changes in the working tree, and carry on building the behaviour. The plan edit is uncommitted, and your next commit includes it.
+
 ## Premise answer:
 
 When the message gives `Premise answer:`, the user has answered the question you stopped on, and the plan's decision log now holds the answer. Read the decision log again, keep your changes in the working tree, and build the behaviour again with a fresh count of three attempts. The plan edit is uncommitted, and your next commit includes it.

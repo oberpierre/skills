@@ -47,7 +47,7 @@ graders:
   - name: records-the-missed-question-for-retro
     type: regex
     target: last_message
-    pattern: '^For retro:[^\n]*(order_id|Recorder)'
+    pattern: '^For retro:[^\n]*(order_id|Recorder)[\s\S]*❓ \*\*Q1'
     flags: m
   - name: starts-a-coding-agent
     type: tool_used

@@ -1,0 +1,30 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-logs-a-missed-decision-answer
+description: After the user answers the round for a question the coding agent returned, build writes the answer into the plan's decision log and resumes the same coding agent with SendMessage as Answer, rather than starting a new one.
+context:
+  scaffold_script: scaffold.sh
+  history_file: history.jsonl
+execution:
+  prompt: >-
+    Q1 yes: take the opted-out customer ids as an optional `opted_out` parameter on
+    `on_order_shipped`. The slice stays as planned.
+  max_turns: 40
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: logs-the-answer-in-the-decision-log
+    type: regex
+    target: {source: file, path: docs/work/opt-outs/plan.md}
+    pattern: '## Decision log[\s\S]*opted_out'
+  - name: resumes-the-same-agent-with-the-answer
+    type: tool_used
+    tool: SendMessage
+    input_match: 'a8a21295ee18e30ac[\s\S]*Answer:'
+    min: 1
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0

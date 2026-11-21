@@ -71,6 +71,12 @@ Once the agent reports the slice built, challenge it once, with both lenses: cal
 
 When the commit style makes corrections fixups, squash them with `GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash --exec '<gate>' <start>`, which runs the gate on every rewritten commit and not only on the tip. When one is red, run `git rebase --abort`, restore the branch to `<built>` with `git reset --hard <built>` if the abort left it elsewhere, and stop, naming the commit that went red and the kind of failure. Never try to fix it mid-rebase.
 
+## When the agent returns a question
+
+When the agent's report starts with `Question:`, it needs a choice the plan does not make, and it has committed nothing for that behaviour. Do not answer it yourself. Put the question to the user as a round, calling the Skill tool with `grilling`, with the agent's recommendation as the recommended answer. Write the answer into the plan's decision log, leaving the edit uncommitted, and resume the same agent with SendMessage as `Answer:` followed by the question and the answer, with the instruction to read `Answer:` in `SLICE.md`. When the answer changes a slice's behaviour, stop and name `/slice` instead.
+
+Start the message that holds the round with a line that starts `For retro:` and names the question the planning missed, ahead of `Q1`, because the round ends your turn and nothing you write after it is read as your report.
+
 ## When the gate stays red
 
 When the agent reports that the gate stayed red, it has left the red behaviour's attempt uncommitted and the behaviours that went green earlier committed. Fix nothing yourself. Tell the user the failing command, the kind of failure it reports, written as the bold phrase of the matching item below, and the commits already in `<start>..HEAD`, as `git log --oneline --reverse <start>..HEAD` prints them, or that there are none:
@@ -79,7 +85,7 @@ When the agent reports that the gate stayed red, it has left the red behaviour's
 - **A broken environment:** say what is missing, and stop.
 - **A wrong premise:** put the contradiction to the user as a round, calling the Skill tool with `grilling`. Write the answer into the plan's decision log, leaving the edit uncommitted, and resume the same agent with SendMessage as `Premise answer:` followed by the question and the answer, with the instruction to read `Premise answer:` in `SLICE.md`. When the answer changes a slice's behaviour, stop and name `/slice` instead.
 
-For a wrong premise, end your report with a line that starts `For retro:` and names the question the planning missed.
+For a wrong premise, start the message that holds the round with a line that starts `For retro:` and names the question the planning missed, ahead of `Q1`, because the round ends your turn.
 
 ## Stopping for review
 
