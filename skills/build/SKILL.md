@@ -1,13 +1,13 @@
 ---
 name: build
 description: Build one slice of a feature's plan, or every remaining slice, test-first and one commit per behaviour behind the gate, challenge the result, then stop for your review.
-argument-hint: "[slice id or plan]"
+argument-hint: "[slice id [comment] or plan]"
 disable-model-invocation: true
 ---
 
 # Build: $ARGUMENTS
 
-Build the slice the argument names, such as `S1`, from the feature's plan. Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop. When the argument is a plan, a path or a folder name under `docs/work/`, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below.
+Build the slice the argument names, such as `S1`, from the feature's plan. When words follow the slice id, they are a review comment, and you build nothing: see "When there is a review comment". Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop. When the argument is a plan, a path or a folder name under `docs/work/`, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below.
 
 You do not write the slice's code yourself. A coding agent builds it, and you hold its report and nothing else, so you stay small enough to run a whole feature.
 
@@ -59,6 +59,10 @@ E2E: <the e2e command>
 ```
 
 Leave out the `E2E` line when `e2e` is not configured. Wait for its report. Do not build, fix or commit anything yourself.
+
+## When there is a review comment
+
+Read `COMMENT.md` in this skill's folder and follow it instead of "Building" and "Challenging the slice": it refuses a slice that cannot take a comment, has the correction made as the commit style says, and stops for review.
 
 ## Challenging the slice
 

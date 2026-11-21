@@ -72,3 +72,14 @@ When the message gives `Findings:`, they are defects a challenge found in your s
 3. Run the gate again.
 
 Finish with the plan's row for the slice set to `done` in the slice's real last commit: when a correction stays a commit of its own, move the change onto it, so no earlier commit sets `done`. Reply as above.
+
+## Comment:
+
+When the message gives `Comment:` and `Range:`, the slice is built and a reviewer's comment corrects it. Read the commits of `Range:` oldest first, and decide which of them the comment concerns, since it may concern more than one.
+
+For each, in history order:
+
+1. Write the test that shows the correction first, when it is a behaviour, and see it fail.
+2. Fix it, run the gate on its own, and commit as the commit style says for a correction of a review finding: with `git commit --fixup=<that commit>` where the style makes corrections fixups, and as a commit of its own where it does not. Never rewrite or squash history yourself, and leave the plan's table alone, since the slice stays `done`.
+
+Reply with the commits you made as `git log --oneline --reverse <start>..HEAD` prints them, the commit each fixes, and anything you could not verify.
