@@ -42,6 +42,16 @@ open(p, "w").write(json.dumps(d) + "\n")' "$f" "${@:4}"
     f="$top/.gh-issues/$3.json"
     [[ -f $f ]] && python3 -I -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d["state"]=sys.argv[2]; open(p,"w").write(json.dumps(d)+"\n")' "$f" "$state"
     echo "✓ $([[ $2 == close ]] && echo Closed || echo Reopened) issue eval/shopnotes#$3" ;;
+  "pr create")
+    # The body may come from a file, or from stdin as `--body-file -`, so it is logged too.
+    shift 2
+    for a in "$@"; do
+      if [[ $prev == --body-file ]]; then
+        { [[ $a == - ]] && cat || cat "$a"; } >> "$top/gh-calls.log"
+      fi
+      prev=$a
+    done
+    echo "https://github.com/eval/shopnotes/pull/7" ;;
   "issue create")
     n=$(( $(cat "$top/.gh-next" 2>/dev/null || echo 0) + 1 ))
     echo "$n" > "$top/.gh-next"

@@ -1,0 +1,80 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-closes-with-a-pull-request
+description: "/build close tracking, with every slice done and no decision worth an ADR, deletes the plan in a final commit in the configured style, pushes the branch without it, and opens a pull request whose body holds the decisions under ## Decisions and Closes #1."
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build close tracking
+  max_turns: 60
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: pushes-the-plan-branch
+    type: regex
+    target: {source: file, path: .eval-push.log}
+    pattern: '^refs/heads/feature/tracking notify/'
+    flags: m
+  - name: the-pushed-branch-holds-no-plan
+    type: regex
+    target: {source: file, path: .eval-push.log}
+    pattern: '^refs/heads/feature/tracking docs/work/tracking/plan\.md$'
+    flags: m
+    match: not_contains
+  - name: the-final-commit-is-a-documentation-commit-in-the-style
+    type: regex
+    target: {source: file, path: .eval-push.log}
+    pattern: '^refs/heads/feature/tracking subject: [.^] d Close the tracking plan'
+    flags: m
+  - name: opens-the-pull-request-against-main
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^pr create\b[\s\S]*?--base main'
+    flags: m
+  - name: the-body-holds-the-first-decision-under-the-heading
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^pr create[\s\S]*## Decisions[\s\S]*tracking_url'
+    flags: m
+  - name: the-body-holds-the-second-decision-under-the-heading
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^pr create[\s\S]*## Decisions[\s\S]*Track it at'
+    flags: m
+  - name: the-body-holds-the-third-decision-under-the-heading
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^pr create[\s\S]*## Decisions[\s\S]*EmailNotifier'
+    flags: m
+  - name: the-body-closes-the-parent
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^pr create[\s\S]*## Decisions[\s\S]*Closes #1\b'
+    flags: m
+  - name: the-body-never-closes-a-slice-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: 'Closes #[234]\b|^issue close'
+    flags: m
+    match: not_contains
+  - name: pushes-no-force
+    type: tool_used
+    tool: Bash
+    input_match: 'git\s+push[^|;&]*(--force|\s-f\b|--force-with-lease)'
+    min: 0
+    max: 0
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: reports-the-pull-request
+    type: regex
+    target: last_message
+    pattern: 'pull/7'

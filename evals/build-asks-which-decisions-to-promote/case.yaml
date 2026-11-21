@@ -1,0 +1,61 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-asks-which-decisions-to-promote
+description: "/build close, with one decision that is hard to reverse, surprising and a real trade-off, puts a round through grilling that names that decision with its reason, and writes no ADR, pushes nothing and opens no pull request before the answer."
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build close
+  max_turns: 40
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: puts-a-round-through-grilling
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 1
+  - name: the-round-names-the-decision
+    type: regex
+    target: last_message
+    pattern: 'never stored|fetched from the carrier'
+    flags: i
+  - name: the-round-gives-its-reason
+    type: regex
+    target: last_message
+    pattern: 'stale|migrat'
+    flags: i
+  - name: writes-no-adr-file
+    type: tool_used
+    tool: Write
+    input_match: 'docs/adr'
+    min: 0
+    max: 0
+  - name: writes-no-adr-through-bash
+    type: tool_used
+    tool: Bash
+    input_match: '(>|tee|cp|mv|touch)[^\n|;&]*docs/adr'
+    min: 0
+    max: 0
+  - name: keeps-the-plan
+    type: regex
+    target: {source: file, path: docs/work/tracking/plan.md}
+    pattern: '^\| *S1 *\|'
+    flags: m
+  - name: pushes-nothing
+    type: tool_used
+    tool: Bash
+    input_match: 'git\s+push'
+    min: 0
+    max: 0
+  - name: opens-no-pull-request
+    type: tool_used
+    tool: Bash
+    input_match: 'gh\s+pr\s+create'
+    min: 0
+    max: 0
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
