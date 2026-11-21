@@ -1,0 +1,45 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-refuses-to-close-a-reworked-slice
+description: /build close refuses when the only open slice is S2, in rework, naming S2 as a rework and leaving the plan with nothing committed, pushed or opened as a pull request.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build close
+  max_turns: 30
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: names-the-rework-slice-as-rework
+    type: regex
+    target: last_message
+    pattern: 'S2[^\n]*rework|rework[^\n]*S2'
+    flags: i
+  - name: keeps-the-plan
+    type: regex
+    target: {source: file, path: docs/work/tracking/plan.md}
+    pattern: '^\| *S1 *\|'
+    flags: m
+  - name: commits-nothing
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/tracking}
+    pattern: '\t(?!branch: Created from|commit: Add the plan$)'
+    flags: m
+    match: not_contains
+  - name: pushes-nothing
+    type: tool_used
+    tool: Bash
+    input_match: 'git\s+push'
+    min: 0
+    max: 0
+  - name: opens-no-pull-request
+    type: tool_used
+    tool: Bash
+    input_match: 'gh\s+pr\s+create'
+    min: 0
+    max: 0
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0

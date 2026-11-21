@@ -1,0 +1,28 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-reads-the-close-command
+description: "/build tracking close, with a second plan that still has open slices, is read as the close command and not as a plan or a comment, so the close rules are followed and no coding agent starts."
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build tracking close
+  max_turns: 60
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: follows-the-close-rule
+    type: tool_used
+    tool: Read
+    input_match: 'CLOSE\.md'
+    min: 1
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
