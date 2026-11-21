@@ -29,4 +29,6 @@ Stop once, after all of that. Report:
 - anything an agent could not verify;
 - the whole queue of questions, from the slices and from the whole branch, as one round, calling the Skill tool with `grilling`, oldest first.
 
+With `tracker: github`, close every built slice's issue and every removed row's now, as `TRACKER.md` says, and only now: the slices' own stops close none inside this run.
+
 Ask the user to review the commits, and stop.

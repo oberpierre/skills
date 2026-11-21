@@ -1,0 +1,50 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-closes-a-reverted-issue
+description: With tracker github, /build S2 on a revert rework closes S2's reopened issue as not planned once, never as completed, and leaves S1's closed issue and the parent alone.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S2
+  max_turns: 80
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: drops-the-commits-by-rebase
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\trebase[^\n]*\(finish\)'
+  - name: closes-the-removed-issue-as-not-planned
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3\b(?=[^\n]*--reason not planned)'
+    flags: m
+  - name: comments-which-rework-reverted-it
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3\b(?=[^\n]*--comment Reverted by rework of S2\b)'
+    flags: m
+  - name: never-closes-the-removed-issue-as-completed
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3 --reason completed'
+    flags: m
+    match: not_contains
+  - name: closes-no-other-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue (close|reopen|edit) [12]\b'
+    flags: m
+    match: not_contains
+  - name: closes-each-issue-at-most-once
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close (\d+)\b[^\n]*\n(?:[^\n]*\n)*?issue close \1\b'
+    flags: m
+    match: not_contains
+  - name: finds-issues-by-number-only
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^(issue list|search)\b'
+    flags: m
+    match: not_contains

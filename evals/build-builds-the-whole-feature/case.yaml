@@ -2,7 +2,7 @@
 # model: sonnet
 schema_version: "1.0"
 name: build-builds-the-whole-feature
-description: With S1 done, S2 a rework with its own unmerged commit that set it done, and S3 todo, /build shipping-notes builds S2 and S3 with a coding agent each and leaves S1 alone, challenges each once, then challenges the whole branch against the whole plan once, and stops once with every slice done and named.
+description: With tracker github, S1 done and its issue closed, S2 a rework with its own unmerged commit that set it done, and S3 todo, /build shipping-notes builds S2 and S3 with a coding agent each and leaves S1 alone, challenges each once, then challenges the whole branch against the whole plan once, and stops once with every slice done and named, closing the issues of S2 and S3 once each and only after every row is done.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -62,7 +62,7 @@ graders:
   - name: clears-the-reworked-notes-and-keeps-s2-done
     type: regex
     target: {source: file, path: docs/work/shipping-notes/plan.md}
-    pattern: '^\| *S2 *\|[^\n]*\| *done *\| *\|$'
+    pattern: '^\| *S2 *\|[^\n]*\| *done *\| *\| *#3 *\|$'
     flags: m
   - name: leaves-no-slice-todo-or-rework
     type: regex
@@ -80,6 +80,34 @@ graders:
       The final response lists the commits of the whole branch, from the first slice built to
       the last, and not only those of the last slice, and names the acceptance test of each
       slice built.
+  - name: closes-the-reworked-slices-issue-as-completed-once-every-row-is-done
+    type: regex
+    target: {source: file, path: gh-state.log}
+    pattern: '^issue close 3 --reason completed \| S1=done S2=done S3=done$'
+    flags: m
+  - name: closes-the-new-slices-issue-as-completed-once-every-row-is-done
+    type: regex
+    target: {source: file, path: gh-state.log}
+    pattern: '^issue close 4 --reason completed \| S1=done S2=done S3=done$'
+    flags: m
+  - name: closes-each-issue-at-most-once
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close (\d+)\b[^\n]*\n(?:[^\n]*\n)*?issue close \1\b'
+    flags: m
+    match: not_contains
+  - name: leaves-the-parent-and-the-done-slice-issue-alone
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue (close|reopen|edit) (1|2)\b'
+    flags: m
+    match: not_contains
+  - name: finds-issues-by-number-only
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^(issue list|search)\b'
+    flags: m
+    match: not_contains
   - name: never-skips-the-hook
     type: tool_used
     tool: Bash

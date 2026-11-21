@@ -89,7 +89,7 @@ When the agent reports that the gate stayed red, it has left the red behaviour's
 
 ## Stopping for review
 
-When the agent reports the slice built, check that the last commit of `git log --oneline <start>..HEAD` is the one that sets the slice's row to `done`. Then tell the user:
+When the agent reports the slice built, check that the last commit of `git log --oneline <start>..HEAD` is the one that sets the slice's row to `done`. When `tracker` is `github`, close the slice's issue as `TRACKER.md` says. Then tell the user:
 
 - the slice and its behaviour, in one sentence;
 - the branch and the commits, oldest first, as `git log --oneline --reverse <start>..HEAD` prints them;

@@ -16,7 +16,7 @@ Call the row that survives the **subject**: the slice itself, or for a squash na
 
 ## Carry it out
 
-Find the range of every slice the note involves as `COMMENT.md` says under "Find the slice's commits", and take `<base>` from the oldest and `<head>` from the newest. Note `<pre>` with `git rev-parse HEAD`.
+Find the range of every slice the note involves as `COMMENT.md` says under "Find the slice's commits", and take `<base>` from the oldest and `<head>` from the newest. Note `<pre>` with `git rev-parse HEAD`. With `tracker: github`, note the issue numbers of the rows the rework removes first, as `TRACKER.md` says, since the stop closes the issues.
 
 Start the coding agent as `SKILL.md` describes under "Building", with `Start: <base>` in place of the start commit and the extra lines `Rework: <the note>` and `Range: <base>..<head>` and the instruction to read `Rework:` in `SLICE.md`. How the commits change follows the commit style, as `COMMENT.md` says under "Correct":
 

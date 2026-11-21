@@ -4,6 +4,19 @@
 # Existing issues a case needs to show are .gh-issues/<n>.json files there.
 top="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 printf '%s\n' "$*" >> "$top/gh-calls.log"
+# A case that must pin when a call happens names its plan in .gh-plan, and gh-state.log then
+# pairs each call with the status of every slice row in the plan as committed at HEAD.
+if [[ -f $top/.gh-plan ]]; then
+  rows=$(git -C "$top" show "HEAD:$(cat "$top/.gh-plan")" 2>/dev/null | python3 -I -c '
+import re, sys
+out = []
+for line in sys.stdin:
+    m = re.match(r"\| *(S\d+) *\|", line)
+    if m:
+        out.append(m.group(1) + "=" + [c.strip() for c in line.strip().strip("|").split("|")][4])
+print(" ".join(out))')
+  printf '%s | %s\n' "$*" "$rows" >> "$top/gh-state.log"
+fi
 case "$1 ${2:-}" in
   "auth status") echo "github.com: Logged in to github.com account eval (keyring)" ;;
   "repo view") echo '{"nameWithOwner":"eval/shopnotes"}' ;;
