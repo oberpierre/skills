@@ -1,0 +1,36 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-stops-on-a-rework-note-without-a-shape
+description: /build S1 on a rework whose note names no squash, revert or rebuild stops, names /slice, starts no agent, writes nothing and rewrites no history.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1
+  max_turns: 30
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: names-slice
+    type: regex
+    target: last_message
+    pattern: '/slice'
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: rewrites-nothing
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\t(rebase|commit[^:\n]*: (fixup!|Revert))'
+    match: not_contains
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

@@ -1,0 +1,43 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-carries-out-a-squash-from-the-absorbed-row
+description: /build S2, whose note is "Squash into S1", carries the squash out on S1 and challenges it as S1, so S1 ends done with its Note cleared and S2 removed in the committed plan.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S2
+  max_turns: 80
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: starts-a-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: rewrites-history-with-a-squash
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\trebase[^\n]*\((squash|fixup)\)[^\n]*\n(?:[^\n]*\n)*?[^\n]*\trebase[^\n]*\(finish\)'
+  - name: gates-the-squashed-commit-whose-committed-plan-is-final
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:[^\n]*\|both\|alone\|s1done\|sender\|s2gone$'
+    flags: m
+  - name: challenges-the-surviving-row-once
+    type: tool_used
+    tool: Skill
+    input_match: 'plan\.md\s+S1\s'
+    min: 1
+    max: 1
+  - name: never-challenges-the-absorbed-row
+    type: tool_used
+    tool: Skill
+    input_match: 'plan\.md\s+S2\s'
+    min: 0
+    max: 0
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0

@@ -1,0 +1,59 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-carries-out-a-rebuild
+description: Under arlo-features, /build S2 on a rebuild rework drops S2's commit in an interactive rebase, rebuilds the carrier line test-first at that position, replays the later commits with the gate run on each, and ends with S2 done and its Note cleared in the final history.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S2
+  max_turns: 100
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: starts-a-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: rewrites-history-by-rebase
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\trebase[^\n]*\(finish\)'
+  - name: rebuilds-the-carrier-line
+    type: regex
+    target: {source: file, path: notify/shipping.py}
+    pattern: 'Carrier: '
+  - name: the-built-carrier-form-is-gone
+    type: regex
+    target: {source: file, path: notify/shipping.py}
+    pattern: ' via '
+    match: not_contains
+  - name: the-test-pins-the-rebuilt-form
+    type: regex
+    target: {source: file, path: tests/test_shipping.py}
+    pattern: 'Carrier: DHL'
+  - name: gates-the-first-later-commit
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:\^ t A recorder starts empty$'
+    flags: m
+  - name: gates-the-second-later-commit
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:\^ t A notifier is a class$'
+    flags: m
+  - name: the-final-history-has-s2-done-with-its-note-cleared
+    type: regex
+    target: {source: file, path: .eval-head.log}
+    pattern: '(?:^|\n)head:S1:done S2:done S3:gone\n?$'
+  - name: challenges-the-slice-id-once
+    type: tool_used
+    tool: Skill
+    input_match: 'plan\.md\s+S2\s'
+    min: 1
+    max: 1
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0

@@ -2,7 +2,7 @@
 # model: sonnet
 schema_version: "1.0"
 name: build-builds-the-whole-feature
-description: With S1 done, S2 a rework and S3 todo, /build shipping-notes builds S2 and S3 with a coding agent each and leaves S1 alone, challenges each once, then challenges the whole branch against the whole plan once, and stops once with every slice done and named.
+description: With S1 done, S2 a rework with its own unmerged commit that set it done, and S3 todo, /build shipping-notes builds S2 and S3 with a coding agent each and leaves S1 alone, challenges each once, then challenges the whole branch against the whole plan once, and stops once with every slice done and named.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -58,6 +58,11 @@ graders:
     type: regex
     target: {source: file, path: .eval-commits.log}
     pattern: '^S3$'
+    flags: m
+  - name: clears-the-reworked-notes-and-keeps-s2-done
+    type: regex
+    target: {source: file, path: docs/work/shipping-notes/plan.md}
+    pattern: '^\| *S2 *\|[^\n]*\| *done *\| *\|$'
     flags: m
   - name: leaves-no-slice-todo-or-rework
     type: regex

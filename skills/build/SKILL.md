@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Build: $ARGUMENTS
 
-Build the slice the argument names, such as `S1`, from the feature's plan. When words follow the slice id, they are a review comment, and you build nothing: see "When there is a review comment". Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop. When the argument is a plan, a path or a folder name under `docs/work/`, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below.
+Build the slice the argument names, such as `S1`, from the feature's plan. When words follow the slice id, they are a review comment, and you build nothing: see "When the slice is a rework, or there is a review comment". Use the only plan under `docs/work/`, and when there are several or none, ask which plan to build and stop. When the argument is a plan, a path or a folder name under `docs/work/`, read `FEATURE.md` in this skill's folder and follow it, which builds every remaining slice with the sections below.
 
 You do not write the slice's code yourself. A coding agent builds it, and you hold its report and nothing else, so you stay small enough to run a whole feature.
 
@@ -40,7 +40,7 @@ Read the plan's slices table and its `**Branch:**` line. Check the plan before y
 - the slice named is not in the table;
 - `tracker` is `github` and the table has no `Issue` column, and then also name `/slice` to mirror the slices.
 
-Never repair the plan yourself, since that would change what the user approved. A slice named by id must be `todo`, and a plan builds every slice that is `todo` or `rework`.
+Never repair the plan yourself, since that would change what the user approved. A slice named by id must be `todo` or `rework`, and a plan builds every slice that is either.
 
 Read the default branch from `origin/HEAD`, and when it is not set, ask the user which branch is the default and stop. When you are on the default branch, create the plan's branch from it and switch to it. When you are already on the plan's branch, stay on it. Note the commit you start from with `git rev-parse HEAD`.
 
@@ -58,11 +58,11 @@ Commit style: <absolute path of the style file>
 E2E: <the e2e command>
 ```
 
-Leave out the `E2E` line when `e2e` is not configured. Wait for its report. Do not build, fix or commit anything yourself.
+Leave out the `E2E` line when `e2e` is not configured. Wait for its report, and build, fix and commit nothing yourself.
 
-## When there is a review comment
+## When the slice is a rework, or there is a review comment
 
-Read `COMMENT.md` in this skill's folder and follow it instead of "Building" and "Challenging the slice": it refuses a slice that cannot take a comment, has the correction made as the commit style says, and stops for review.
+Instead of "Building" and "Challenging the slice", read `REWORK.md` in this skill's folder for a `rework` slice, which carries its note out in place, and `COMMENT.md` for a review comment, which refuses a slice that cannot take one and has the correction made as the commit style says. Each challenges or stops for review as it says.
 
 ## Challenging the slice
 
@@ -77,7 +77,7 @@ When the commit style makes corrections fixups, squash them with `GIT_SEQUENCE_E
 
 When the agent's report starts with `Question:`, it needs a choice the plan does not make, and it has committed nothing for that behaviour. Do not answer it yourself. Put the question to the user as a round, calling the Skill tool with `grilling`, with the agent's recommendation as the recommended answer. Write the answer into the plan's decision log, leaving the edit uncommitted, and resume the same agent with SendMessage as `Answer:` followed by the question and the answer, with the instruction to read `Answer:` in `SLICE.md`. When the answer changes a slice's behaviour, stop and name `/slice` instead.
 
-Start the message that holds the round with a line that starts `For retro:` and names the question the planning missed, ahead of `Q1`, because the round ends your turn and nothing you write after it is read as your report.
+Start the message that holds a round, for a question or for a wrong premise below, with a line that starts `For retro:` and names the question the planning missed, ahead of `Q1`, because the round ends your turn and nothing you write after it is read as your report.
 
 ## When the gate stays red
 
@@ -86,8 +86,6 @@ When the agent reports that the gate stayed red, it has left the red behaviour's
 - **A defect in its own code:** offer to debug it together, and wait. When the user accepts, resume the same agent with SendMessage and debug with the user.
 - **A broken environment:** say what is missing, and stop.
 - **A wrong premise:** put the contradiction to the user as a round, calling the Skill tool with `grilling`. Write the answer into the plan's decision log, leaving the edit uncommitted, and resume the same agent with SendMessage as `Premise answer:` followed by the question and the answer, with the instruction to read `Premise answer:` in `SLICE.md`. When the answer changes a slice's behaviour, stop and name `/slice` instead.
-
-For a wrong premise, start the message that holds the round with a line that starts `For retro:` and names the question the planning missed, ahead of `Q1`, because the round ends your turn.
 
 ## Stopping for review
 

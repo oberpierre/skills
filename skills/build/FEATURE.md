@@ -4,7 +4,7 @@ For a plan argument, `SKILL.md` runs once per slice and this file changes what h
 
 ## The slices
 
-Build every slice that is `todo` or `rework`, one after another in the order the table gives. Each has its own coding agent, `<start>` and slice challenge, and a `rework` slice is built like a `todo` one.
+Build every slice that is `todo` or `rework`, one after another in the order the table gives. Each has its own coding agent, `<start>` and slice challenge, and a `rework` slice is carried out as `REWORK.md` says, without its own stop, so its questions join the queue below. Skip a row that an earlier squash or revert removed.
 
 Skip a slice whose `Blocked by` names a slice still unfinished, and return to it after the others. When a whole pass over the remaining slices builds none, stop and name the slices that cannot be built and the blockers each waits for.
 

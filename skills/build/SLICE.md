@@ -83,3 +83,13 @@ For each, in history order:
 2. Fix it, run the gate on its own, and commit as the commit style says for a correction of a review finding: with `git commit --fixup=<that commit>` where the style makes corrections fixups, and as a commit of its own where it does not. Never rewrite or squash history yourself, and leave the plan's table alone, since the slice stays `done`.
 
 Reply with the commits you made as `git log --oneline --reverse <start>..HEAD` prints them, the commit each fixes, and anything you could not verify.
+
+## Rework:
+
+When the message gives `Rework:` and `Range:`, the slices in `Range:` are built and the note says how to change them. Carry it out in place with `GIT_SEQUENCE_EDITOR` and `git rebase -i --exec '<gate>' <base>` when the commit style makes corrections fixups, so the gate runs on every rewritten commit, and as new commits behind the gate otherwise. A rebase that stops on a conflict or a red commit is a red gate: stop as "A red gate" says.
+
+- **Squash**: fold the commits of the absorbed slices into the last commit of the lowest-numbered slice, so its behaviour covers all of them, and give that commit one message in the commit style for the merged behaviour. Keep every test.
+- **Revert**: under a fixup style, drop the slice's commits with the tests that pinned the behaviour. Under a style that never rewrites history, add `git revert` commits for them.
+- **Rebuild**: under a fixup style, drop the slice's commits in an interactive rebase with a `break` at the slice's position. When it stops there, build the slice from the note as above, test-first with one gate-checked commit per behaviour, then run `git rebase --continue`, which replays the later commits behind `--exec '<gate>'`.
+
+Then change the plan's table, and nothing else in the plan, in the rework's last commit, folding in any commit that only marked the rows `rework`. A squash merges the absorbed behaviour into the surviving row's Behaviour and removes the absorbed rows. A revert removes the row. A rebuild keeps it. A surviving row is `done` with its Note cleared. Reply as under "Done".
