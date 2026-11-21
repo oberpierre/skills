@@ -1,0 +1,77 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-merges-locally-with-gh-missing
+description: "/build close tracking, with origin on GitHub, gh missing and tracker markdown, merges the branch into main locally with --no-ff, puts the decisions in the merge message, pushes nothing and opens no pull request."
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build close tracking
+  max_turns: 60
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: merges-with-two-parents-into-main
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^parents: 2\nbranch: main$'
+    flags: m
+  - name: the-merged-tree-holds-no-plan
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^tree: docs/work/tracking/plan\.md$'
+    flags: m
+    match: not_contains
+  - name: the-merged-branch-ends-in-the-closing-commit
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^second-parent: [.^] d Close the tracking plan'
+    flags: m
+  - name: the-message-holds-the-decisions-heading
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^## Decisions$'
+    flags: m
+  - name: the-message-holds-the-first-decision
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '## Decisions[\s\S]*tracking_url'
+  - name: the-message-holds-the-second-decision
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '## Decisions[\s\S]*Track it at'
+  - name: the-message-holds-the-third-decision
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '## Decisions[\s\S]*EmailNotifier'
+  - name: nothing-reaches-origin
+    type: regex
+    target: {source: file, path: .eval-push.log}
+    pattern: '\S'
+    match: not_contains
+  - name: opens-no-pull-request
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^pr create'
+    flags: m
+    match: not_contains
+  - name: pushes-nothing
+    type: tool_used
+    tool: Bash
+    input_match: 'git\s+(-\S+\s+\S+\s+)*push'
+    min: 0
+    max: 0
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: reports-the-merge-commit
+    type: regex
+    target: last_message
+    pattern: '[Mm]erge[^\n]*\b[0-9a-f]{7,40}\b|\b[0-9a-f]{7,40}\b[^\n]*[Mm]erge'

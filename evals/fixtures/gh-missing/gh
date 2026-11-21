@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# A stand-in for a missing gh in eval cases, since a case cannot take gh off the PATH: every call
+# is logged, one per line, to gh-calls.log at the top of the workspace and fails as a shell does
+# for a command it cannot find.
+top="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+printf '%s\n' "$*" >> "$top/gh-calls.log"
+echo "gh: command not found" >&2
+exit 127
