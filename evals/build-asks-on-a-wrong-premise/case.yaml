@@ -1,0 +1,67 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-asks-on-a-wrong-premise
+description: When the plan's decisions contradict each other against the existing test, /build S1 commits nothing, leaves that test untouched and puts the contradiction to the user as a numbered round with a recommendation through grilling, rather than editing the test or choosing.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1
+  max_turns: 80
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: leaves-the-pinned-test-untouched
+    type: regex
+    target: {source: file, path: tests/test_shipping.py}
+    pattern: 'def send\(self, customer_id: str, message: str\) -> None:\n        self\.sent\.append\(\(customer_id, message\)\)'
+  - name: calls-grilling
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 1
+  - name: round-format
+    type: regex
+    pattern: '❓ \*\*Q1\b[\s\S]*➡️'
+  - name: asks-about-the-contradiction
+    type: llm
+    criteria: >-
+      The final response asks the user a numbered question, with a recommended answer, about
+      the plan's two decisions contradicting each other: a required third `order_id`
+      parameter on `Notifier.send`, against the existing test whose `Recorder.send` takes two
+      parameters and must stay exactly as it is. It does not announce a choice as made.
+  - name: reports-at-once-without-three-attempts
+    type: tool_used
+    tool: Bash
+    input_match: 'gate\.py'
+    min: 0
+    max: 2
+  - name: names-the-kind
+    type: regex
+    target: last_message
+    pattern: 'wrong premise'
+    flags: i
+  - name: names-the-failing-command
+    type: regex
+    target: last_message
+    pattern: 'scripts/gate\.py'
+  - name: records-the-missed-question-for-retro
+    type: regex
+    target: last_message
+    pattern: '^For retro:[^\n]*(order_id|Recorder)'
+    flags: m
+  - name: starts-a-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: commits-nothing
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\tcommit[^:\n]*: (?!Add the gate$|Initial commit$)'
+    flags: m
+    match: not_contains
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
