@@ -16,7 +16,7 @@ You do not write the slice's code yourself. A coding agent builds it, and you ho
 Read `.agents/config.yml`:
 
 - `gate` is the command that checks the whole repository. A commit is made only when it passes.
-- `commit_style` names a preset, `arlo` or `arlo-features`, which is the file of that name in the `styles` folder beside this skill, or a path to a style file in the repository.
+- `commit_style` names a preset, `arlo`, `arlo-features`, `conventional` or `plain`, which is the file of that name in the `styles` folder beside this skill, or a path to a style file in the repository.
 - `build_model` is the model the coding agent runs on, `sonnet` when the key is missing.
 - `e2e`, when present, is a command like `gate`.
 - `tracker` is `markdown` or `github`, `markdown` when the key is missing.
