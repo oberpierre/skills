@@ -10,6 +10,7 @@ Instructions for developing this plugin. They sit in `.claude/` because the plug
   - Its own case gets `--runs 3 --baseline` for the red run and `--runs 3` for the last green run. Every other run is one run.
   - When a run fails, read its kept trace and check a changed grader offline against saved replies. Rerun only once the cause is known.
   - Rerun only the cases whose skill text changed, once, one run each, at the end of the slice.
+  - After a feature, run `evals/run.sh --changed <the branch it started from>`: one run of every case of each changed skill, stopping at the budget. The full suite runs only before a release tag.
   - One judge split is not a finding. Look into it only when it repeats.
   - A new grader runs once in the eval before it is committed.
 

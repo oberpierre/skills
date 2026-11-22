@@ -127,6 +127,10 @@ if ! "$root/evals/tests/run-routing.sh"; then
   fail "run.sh routed the opus alias wrongly for a sonnet or opus case"
 fi
 
+if ! "$root/evals/tests/run-changed.sh"; then
+  fail "run.sh --changed runs only the changed skills' cases"
+fi
+
 if (( failed )); then
   exit 1
 fi
