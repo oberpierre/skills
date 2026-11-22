@@ -2,7 +2,7 @@
 # model: sonnet
 schema_version: "1.0"
 name: build-stops-on-a-bad-config
-description: When .agents/config.yml names a commit_style that is neither a preset nor a file and a tracker that is neither markdown nor github, /build S1 stops naming both problems before it creates a branch, starts a coding agent or commits.
+description: When .agents/config.yml has an empty gate, an e2e that is a list, a commit_style file that extends arlo-features, which itself extends arlo, and a tracker that is neither markdown nor github, /build S1 stops naming each problem before it creates a branch, starts a coding agent or commits.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -10,16 +10,34 @@ execution:
   max_turns: 30
   allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
 graders:
-  - name: names-the-bad-commit-style
+  - name: names-the-empty-gate
     type: llm
     criteria: >-
-      The final response reports that the configured commit_style value `fancy` is neither
-      a preset nor a file in the repository.
+      The final response reports that `gate` in .agents/config.yml is empty.
+  - name: names-the-line-to-change-for-the-gate
+    type: llm
+    criteria: >-
+      The final response says which line of .agents/config.yml to add or change so that `gate` holds a command.
+  - name: names-the-non-string-e2e
+    type: llm
+    criteria: >-
+      The final response reports that `e2e` in .agents/config.yml is not a string command.
+  - name: names-the-line-to-change-for-e2e
+    type: llm
+    criteria: >-
+      The final response says which line of .agents/config.yml to add or change so that `e2e` is a string command.
+  - name: names-the-two-level-extends
+    type: llm
+    criteria: >-
+      The final response reports that the configured commit style extends a style that itself extends another, so the extends chain is two levels deep.
+  - name: names-the-line-to-change-for-the-style
+    type: llm
+    criteria: >-
+      The final response says which line of .agents/config.yml or the style file to add or change so that the extends chain is one level deep.
   - name: names-the-bad-tracker
     type: llm
     criteria: >-
-      The final response reports that the configured tracker value `jira` is not one of
-      the known values, markdown or github.
+      The final response reports that the configured tracker value `jira` is not one of the known values, markdown or github.
   - name: starts-no-coding-agent
     type: tool_used
     tool: Agent

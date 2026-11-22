@@ -2,12 +2,13 @@
 # model: sonnet
 schema_version: "1.0"
 name: build-carries-out-a-revert
-description: Under arlo-features, /build S2 on a revert rework drops S2's commit by interactive rebase with the gate run on every rewritten commit, removes the S2 row in the final history while S1 stays done, leaves no sender code behind, and challenges the slice id once.
+description: Under arlo-features and tracker github, /build S2 on a revert rework drops S2's commit by interactive rebase with the gate run on every rewritten commit, removes the S2 row in the final history while S1 stays done, leaves no sender code behind, challenges the slice id once, and closes S2's reopened issue as not planned once, never as completed, leaving S1's closed issue and the parent alone.
 context:
   scaffold_script: scaffold.sh
 execution:
   prompt: /build S2
   max_turns: 80
+  timeout_seconds: 600
   allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
 graders:
   - name: starts-a-coding-agent
@@ -58,3 +59,37 @@ graders:
     input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
     min: 0
     max: 0
+  - name: closes-the-removed-issue-as-not-planned
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3\b(?=[^\n]*--reason not planned)'
+    flags: m
+  - name: comments-which-rework-reverted-it
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3\b(?=[^\n]*--comment Reverted by rework of S2\b)'
+    flags: m
+  - name: never-closes-the-removed-issue-as-completed
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3 --reason completed'
+    flags: m
+    match: not_contains
+  - name: closes-no-other-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue (close|reopen|edit) [12]\b'
+    flags: m
+    match: not_contains
+  - name: closes-each-issue-at-most-once
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close (\d+)\b[^\n]*\n(?:[^\n]*\n)*?issue close \1\b'
+    flags: m
+    match: not_contains
+  - name: finds-issues-by-number-only
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^(issue list|search)\b'
+    flags: m
+    match: not_contains

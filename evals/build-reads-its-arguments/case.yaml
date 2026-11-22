@@ -2,12 +2,13 @@
 # model: sonnet
 schema_version: "1.0"
 name: build-reads-its-arguments
-description: With two plans, /build shipping-notes S3 builds S3 of the plan named, on that plan's branch, and leaves the other plan's table and branch untouched.
+description: "With two plans and commit_style naming a repo file that extends conventional and adds a ticket suffix, /build shipping-notes S3 builds S3 of the plan named, on that plan's branch, leaves the other plan's table and branch untouched and writes every commit as a Conventional Commits subject ending with the ticket [TRACK-7]."
 context:
   scaffold_script: scaffold.sh
 execution:
   prompt: /build shipping-notes S3
   max_turns: 60
+  timeout_seconds: 600
   allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
 graders:
   - name: switches-to-the-named-plans-branch
@@ -43,3 +44,46 @@ graders:
     input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
     min: 0
     max: 0
+  - name: commits-the-slice-on-the-plan-branch
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: '
+  - name: every-subject-is-conventional
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: (?!(?:fixup|squash)! |(feat|fix|refactor|docs|test|build|chore)(\([^)\n]+\))?!?: \S)'
+    match: not_contains
+  - name: every-subject-ends-with-the-ticket
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: (?!(?:fixup|squash)! |[^\n]* \[TRACK-7\]$)'
+    flags: m
+    match: not_contains
+  - name: commits-the-behaviour-as-a-feature
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: feat(\([^)\n]+\))?: [^\n]* \[TRACK-7\]$'
+    flags: m
+  - name: writes-no-arlo-marker
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: [.^!@] [A-Za-z] '
+    match: not_contains
+  - name: runs-the-gate
+    type: tool_used
+    tool: Bash
+    input_match: 'scripts/gate\.py'
+    min: 1
+  - name: commits-the-plan-in-the-first-commit
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A[^\n]*docs/work/shipping\-notes/plan\.md'
+  - name: sets-the-row-to-done-in-the-last-commit-only
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A(?:(?![^\n]*done:S3)[^\n]*\n)*[^\n]*done:S3[^\n]*\n*\Z'
+  - name: commits-a-test-before-or-with-the-code
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A(?:(?![^\n]*(?:tests/|notify/))[^\n]*\n)*(?![^\n]*tests/)[^\n]*notify/'
+    match: not_contains
