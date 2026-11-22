@@ -69,6 +69,16 @@ if [[ -d "$root/evals/$name/bin" ]]; then
   export PATH=".eval-bin:$PATH"
 fi
 
+# challenge names the opus alias in its frontmatter, so a sonnet case pins that
+# alias to sonnet, and any other case must not inherit a value from the caller.
+# The main session takes the same id, so one case never runs on two models.
+if [[ "$model" == "sonnet" ]]; then
+  model=claude-sonnet-5-5
+  export ANTHROPIC_DEFAULT_OPUS_MODEL="$model"
+else
+  unset ANTHROPIC_DEFAULT_OPUS_MODEL
+fi
+
 cd "$root"
 exec claude plugin eval . --case "$name" --allow-tools "${grants[@]}" --model "$model" \
   --runs "$runs" --ablation "$ablation" --max-cost-usd "${EVAL_MAX_USD:-1.5}" --keep-temp \

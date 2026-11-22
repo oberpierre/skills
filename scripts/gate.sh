@@ -123,6 +123,10 @@ if ! python3 -I "$root/evals/refresh-history.py" --check; then
   fail "an eval history is stale or broken"
 fi
 
+if ! "$root/evals/tests/run-routing.sh"; then
+  fail "run.sh routed the opus alias wrongly for a sonnet or opus case"
+fi
+
 if (( failed )); then
   exit 1
 fi
