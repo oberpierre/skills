@@ -1,0 +1,51 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-asks-a-missed-decision
+description: When the plan never says where a customer's opt-out is kept, /build S1 has the coding agent return that question instead of inventing a source, puts it to the user as a numbered round with a recommendation through grilling, and records the missed question for retro.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1
+  max_turns: 80
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: starts-a-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: the-question-comes-from-the-coding-agents-report
+    type: regex
+    target: trace
+    pattern: 'The report follows:(\\n|\n)\s*Question:'
+  - name: calls-grilling
+    type: tool_used
+    tool: Skill
+    input_match: 'grilling'
+    min: 1
+  - name: round-format
+    type: regex
+    pattern: '❓ \*\*Q1\b[\s\S]*➡️'
+  - name: asks-where-the-opt-out-is-kept
+    type: llm
+    criteria: >-
+      The final response asks the user a numbered question, with a recommended answer, about
+      where a customer's opt-out is kept or how it reaches `on_order_shipped`, which the plan
+      does not say. It does not announce a source for the opt-out as chosen.
+  - name: records-the-missed-question-for-retro
+    type: regex
+    target: last_message
+    pattern: '^For retro:[^\n]*opt[\s\S]*❓ \*\*Q1'
+    flags: m
+  - name: commits-nothing
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\tcommit[^:\n]*: (?!Add the gate$|Initial commit$)'
+    flags: m
+    match: not_contains
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0

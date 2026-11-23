@@ -1,0 +1,116 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-builds-a-slice-out-of-order
+description: With tracker github, e2e set and S1 and S2 still todo, /build S3 from the default branch with an uncommitted plan creates the plan's branch, has a sonnet coding agent build S3, whose Blocked by is none, test-first behind the gate in arlo-features commits, runs e2e once after the behaviour exists, marks only S3 done in the last commit, closes only S3's issue as completed, leaves main and the other slices alone and stops for review.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S3
+  max_turns: 60
+  timeout_seconds: 600
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: switches-to-the-plan-branch
+    type: regex
+    target: {source: file, path: .git/HEAD}
+    pattern: 'ref: refs/heads/feature/shipping-notes'
+  - name: leaves-main-alone
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/main}
+    pattern: '\t(?!commit \(initial\): Initial commit$|commit: Add the gate$|Branch: renamed )'
+    flags: m
+    match: not_contains
+  - name: commits-the-behaviour-in-arlo-features
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: \^ F '
+  - name: commits-only-arlo-subjects
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: (?![.^!@] [FBRDEfbrdet] )'
+    match: not_contains
+  - name: writes-the-acceptance-test
+    type: regex
+    target: {source: file, path: tests/test_email.py}
+    pattern: 'def test_an_email_names_its_sender_when_it_has_one'
+  - name: builds-the-behaviour
+    type: regex
+    target: {source: file, path: notify/email.py}
+    pattern: 'sender'
+  - name: builds-nothing-of-s1-or-s2
+    type: regex
+    target: {source: file, path: notify/shipping.py}
+    pattern: 'tracking|carrier'
+    flags: i
+    match: not_contains
+  - name: leaves-s1-and-s2-todo
+    type: regex
+    target: {source: file, path: docs/work/shipping-notes/plan.md}
+    pattern: '^\| *S[12] *\|[^\n]*\| *(done|rework) *\|'
+    flags: m
+    match: not_contains
+  - name: marks-s3-done
+    type: regex
+    target: {source: file, path: docs/work/shipping-notes/plan.md}
+    pattern: '^\| *S3 *\|[^\n]*\| *done *\|'
+    flags: m
+  - name: runs-the-gate
+    type: tool_used
+    tool: Bash
+    input_match: 'scripts/gate\.py'
+    min: 1
+  - name: starts-a-sonnet-coding-agent
+    type: tool_used
+    tool: Agent
+    input_match: 'sonnet'
+    min: 1
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
+  - name: runs-e2e-exactly-once-and-it-passes
+    type: regex
+    target: {source: file, path: .eval-e2e.log}
+    pattern: '^e2e ok\s*$'
+  - name: commits-the-plan-in-the-first-commit
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A[^\n]*docs/work/shipping\-notes/plan\.md'
+  - name: sets-the-row-to-done-in-the-last-commit-only
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A(?:(?![^\n]*done:S3)[^\n]*\n)*[^\n]*done:S3[^\n]*\n*\Z'
+  - name: commits-a-test-before-or-with-the-code
+    type: regex
+    target: {source: file, path: .eval-commits.log}
+    pattern: '\A(?:(?![^\n]*(?:tests/|notify/))[^\n]*\n)*(?![^\n]*tests/)[^\n]*notify/'
+    match: not_contains
+  - name: closes-the-slice-issue-as-completed
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 4 --reason completed'
+    flags: m
+  - name: closes-nothing-else
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue (close|reopen|edit) (1|2|3)\b'
+    flags: m
+    match: not_contains
+  - name: finds-issues-by-number-only
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^(issue list|search)\b'
+    flags: m
+    match: not_contains
+  - name: the-recorded-issue-ends-closed
+    type: regex
+    target: {source: file, path: .gh-issues/4.json}
+    pattern: '"state": "CLOSED"'
+  - name: stops-for-review
+    type: llm
+    criteria: >-
+      The final response reports slice S3 as built and asks the user to review it,
+      naming its commits or the branch they are on.

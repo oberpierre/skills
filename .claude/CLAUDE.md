@@ -4,14 +4,12 @@ Instructions for developing this plugin. They sit in `.claude/` because the plug
 
 - **Gate:** `scripts/gate.sh`, run before every commit by the hook `scripts/gate.sh --install` sets up.
 - **Commits:** `arlo-features` as ADR 0003 describes, one behaviour per commit (ADR 0002).
-- **Evals:** a skill's behaviour is pinned by eval cases in `evals/<skill>-*`, run only with `evals/run.sh <case>`, which grants the tools the case's first line names (`# allow-tools: …`) and runs it on the model its second line names (`# model: opus`), the one its author runs that skill on (`opus` for planning skills, `sonnet` for `build`). It pins which model a result came from, and asks nothing of users: a skill should work on any model. Run a new case red against the skill before writing the text that should turn it green.
-- **Eval budget:** evals spend the user's usage limit, which belongs to feature work. One slice's evals once took nearly a whole five-hour limit. `evals/run.sh` runs one run with no baseline arm, keeps traces, and refuses to start once the last five hours' evals reached `EVAL_BUDGET_USD` (default $3). Never bypass the runner or raise the budget yourself: stop and ask. Per slice:
-  - Before running, say what the evals will cost. Stop and ask once a slice's evals pass $1.50.
-  - Its own case gets `--runs 3 --baseline` for the red run and `--runs 3` for the last green run. Every other run is one run.
-  - When a run fails, read its kept trace and check a changed grader offline against saved replies. Rerun only once the cause is known.
-  - Rerun only the cases whose skill text changed, once, one run each, at the end of the slice.
-  - One judge split is not a finding. Look into it only when it repeats.
-  - A new grader runs once in the eval before it is committed.
+- **Evals:** a skill's behaviour is pinned by eval cases in `evals/<skill>-*`, run only with `evals/run.sh <case>`, which grants the tools the case's first line names (`# allow-tools: …`) and runs it on the model its second line names (`# model: opus`), the one its author runs that skill on (`opus` for planning skills, `sonnet` for `build`). It pins which model a result came from, and asks nothing of users: a skill should work on any model.
+- **Eval budget:** evals spend the user's usage limit, which belongs to feature work, so no case runs live while a skill is being built (ADR 0010). `evals/run.sh` refuses to start once the last five hours' evals reached `EVAL_BUDGET_USD` (default $3). Never bypass the runner or raise the budget yourself: stop and ask.
+  - A slice writes its cases and checks each grader offline, against saved traces where they exist, otherwise against output that should pass it and output that should fail it.
+  - A new property is graded on an existing case whose setup already reaches it. Two cases stay separate only when their setups cannot share one run.
+  - The whole suite runs once before a release, starting with one case whose trace shows it ran on the models it was routed to. A later release runs `evals/run.sh --changed <previous release tag>`.
+  - When a run fails, read its kept trace and check the grader offline before rerunning anything. One judge split is not a finding until it repeats.
 
 ## Gotchas
 

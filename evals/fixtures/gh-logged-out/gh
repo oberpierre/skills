@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# A stand-in for gh in eval cases where it is installed but not logged in: every call is logged,
+# one per line, to gh-calls.log at the top of the workspace, and every call fails as gh does.
+top="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+printf '%s\n' "$*" >> "$top/gh-calls.log"
+echo "You are not logged into any GitHub hosts. To log in, run: gh auth login" >&2
+exit 1

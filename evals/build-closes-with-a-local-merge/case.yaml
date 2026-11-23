@@ -1,0 +1,93 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-closes-with-a-local-merge
+description: "/build close tracking, with origin not on GitHub, tracker github and gh logged in, merges the branch into main with --no-ff, puts the decisions in the merge message, pushes nothing and closes the parent issue only after the merge."
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build close tracking
+  max_turns: 60
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: merges-with-two-parents-into-main
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^parents: 2\nbranch: main$'
+    flags: m
+  - name: the-merged-tree-holds-no-plan
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^tree: docs/work/tracking/plan\.md$'
+    flags: m
+    match: not_contains
+  - name: the-merged-branch-ends-in-the-closing-commit
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^second-parent: [.^] d Close the tracking plan'
+    flags: m
+  - name: the-merge-subject-is-in-the-commit-style
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^second-parent: .*\n[.^!@] [FfBbRrDdEet] \S'
+    flags: m
+  - name: the-message-holds-the-decisions-heading
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '^## Decisions$'
+    flags: m
+  - name: the-message-holds-the-first-decision
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '## Decisions[\s\S]*tracking_url'
+  - name: the-message-holds-the-second-decision
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '## Decisions[\s\S]*Track it at'
+  - name: the-message-holds-the-third-decision
+    type: regex
+    target: {source: file, path: .eval-merge.log}
+    pattern: '## Decisions[\s\S]*EmailNotifier'
+  - name: closes-the-parent-after-the-merge
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^merged$[\s\S]*^issue close 1 --reason completed\b'
+    flags: m
+  - name: closes-no-slice-issue
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close [23]\b'
+    flags: m
+    match: not_contains
+  - name: pushes-no-ref-to-origin
+    type: regex
+    target: {source: file, path: .eval-push.log}
+    pattern: '\S'
+    match: not_contains
+  - name: opens-no-pull-request
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^pr create'
+    flags: m
+    match: not_contains
+  - name: pushes-nothing
+    type: tool_used
+    tool: Bash
+    input_match: 'git\s+(-\S+\s+\S+\s+)*push'
+    min: 0
+    max: 0
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: reports-the-merge-commit
+    type: regex
+    target: last_message
+    pattern: '[Mm]erge[^\n]*\b[0-9a-f]{7,40}\b|\b[0-9a-f]{7,40}\b[^\n]*[Mm]erge'

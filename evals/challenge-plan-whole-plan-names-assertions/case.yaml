@@ -1,0 +1,42 @@
+# allow-tools: Write Edit Bash(git:*) Bash(test:*)
+# model: opus
+schema_version: "1.0"
+name: challenge-plan-whole-plan-names-assertions
+description: Given a two-slice plan and a range holding both slices, a challenge without a slice id checks the whole plan, names the assertion that pins each criterion and reports, with its slice id, the criterion no assertion pins.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /challenge docs/work/sms/plan.md HEAD~2..HEAD
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write, Edit]
+graders:
+  - name: names-the-assertion-that-pins-the-sender
+    type: regex
+    pattern: 'from_number\s*==|\.from_number\b[^\n]*(pin|assert)|assert[^\n]*from_number'
+  - name: reports-the-unpinned-criterion-with-its-slice
+    type: llm
+    criteria: >-
+      Slice S2 promises that SmsNotifier.send texts nothing when the customer has no number and
+      counts that customer in `skipped`. Its test asserts that nothing is texted and never asserts
+      `skipped`. Slice S1's criteria, the number texted, the sender number and the body, are all
+      asserted. The response passes if it reports, as a finding that names slice S2, that the
+      `skipped` count criterion has no assertion that pins it, and does not report an S1 criterion
+      as unpinned.
+  - name: states-a-kind
+    type: regex
+    pattern: '\b(defect|question)\b'
+    flags: i
+  - name: runs-the-diff-lens-in-a-subagent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0

@@ -1,10 +1,12 @@
 # Build runs serially, one fresh subagent per slice
 
-`build` builds the slices of a plan one after another, in the order the plan gives. Each slice runs in a fresh subagent that receives pointers only: the plan's path, the slice's id and the commit the slice starts from. The session that runs `build` holds the subagents' reports and nothing else.
+`build` builds the slices of a plan one after another, in the order the plan gives. `/build S3` also builds a slice while an earlier one is still `todo`, once every slice in its `Blocked by` is `done`, and refuses a slice with an unfinished blocker by naming it. Each slice runs in a fresh subagent that receives pointers only: the plan's path, the slice's id and the commit the slice starts from. The session that runs `build` holds the subagents' reports and nothing else.
 
 The argument decides the scope. `/build S3` builds one slice, has it challenged, applies the fixes and stops for the user's review. `/build <feature>` builds every remaining slice, challenges each, runs one challenge over the whole branch at the end and stops once. With no argument, `build` lists the slices with their status and suggests the next one.
 
-No commit range is recorded. `build` keeps the commit a slice starts from in its own context and challenges `<start>..HEAD` once the slice is built. It sets the slice's row in the plan to `done` in the slice's own last commit, so a slice found later runs from the commit that marked the slice before it `done` to the last commit that marked it `done`, and a rework rewrites a slice in place. The range of a whole feature starts at the merge-base with the default branch.
+A review comment, `/build S3 <comment>`, is the fourth scope. It turns the comment into fixups on the commits of an unmerged `done` slice, found from the plan's history, and squashes them with the gate run on every rewritten commit. A slice still `todo`, a `rework` slice and a merged one are refused.
+
+No commit range is recorded. `build` keeps the commit a slice starts from in its own context and challenges `<start>..HEAD` once the slice is built. It sets the slice's row in the plan to `done` in the slice's own last commit, so a slice found later runs from the head of the slice built before it, or from the branch's merge-base for the first, up to the last commit that set its row to `done`. A commit sets a row to `done` when it removes the row with another status and adds it with `done`, or adds it already `done`, as the commit that first adds the plan does for a one-commit slice. A rework rewrites a slice in place. The range of a whole feature starts at the merge-base with the default branch.
 
 ## Why
 

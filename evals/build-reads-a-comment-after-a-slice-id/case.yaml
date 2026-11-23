@@ -1,0 +1,58 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-reads-a-comment-after-a-slice-id
+description: "/build S2 close the loop, with every slice done, is a review comment on S2 and not the close command, so the plan stays, nothing is pushed and no pull request is opened."
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S2 close the loop
+  max_turns: 40
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: follows-the-comment-rule
+    type: tool_used
+    tool: Read
+    input_match: 'COMMENT\.md'
+    min: 1
+  - name: never-follows-the-close-rule
+    type: tool_used
+    tool: Read
+    input_match: 'CLOSE\.md'
+    min: 0
+    max: 0
+  - name: keeps-the-plan
+    type: regex
+    target: {source: file, path: docs/work/tracking/plan.md}
+    pattern: '^\| *S2 *\|'
+    flags: m
+  - name: never-deletes-the-plan
+    type: tool_used
+    tool: Bash
+    input_match: 'git\s+rm\b[^|;&]*plan\.md|rm\b[^|;&]*plan\.md'
+    min: 0
+    max: 0
+  - name: commits-no-plan-closing
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/tracking}
+    pattern: '\tcommit[^\n]*[Cc]lose the tracking plan'
+    flags: m
+    match: not_contains
+  - name: pushes-nothing
+    type: tool_used
+    tool: Bash
+    input_match: 'git\s+push'
+    min: 0
+    max: 0
+  - name: opens-no-pull-request
+    type: tool_used
+    tool: Bash
+    input_match: 'gh\s+pr\s+create'
+    min: 0
+    max: 0
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0

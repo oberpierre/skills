@@ -1,0 +1,61 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-folds-a-review-comment
+description: On a slice built after a higher-numbered one, /build S1 with a review comment makes a fixup for the commit the comment concerns, squashes it with the gate run on each rewritten commit, leaves the slice built before it untouched and keeps both rows done.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1 The tracking sentence should end with a full stop after the link.
+  max_turns: 80
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: starts-a-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: fixes-the-sentence
+    type: regex
+    target: {source: file, path: notify/shipping.py}
+    pattern: 'Track it at \{tracking_url\}\.'
+  - name: makes-a-fixup-and-squashes-it
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\tcommit[^:\n]*: fixup! [^\n]*\n(?:[^\n]*\n)*?[^\n]*\trebase[^\n]*\(finish\)'
+  - name: the-defect-commit-itself-has-the-fix
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:\^ F A shipped order''s message ends with its tracking link\|fixed\n'
+    flags: m
+  - name: gates-the-later-commit-of-the-slice-too
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:\^ t A message without a link stays exactly as it is\|fixed\n'
+    flags: m
+  - name: no-fixup-commit-survives-the-rewrite
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:(fixup|squash)!'
+    flags: m
+    match: not_contains
+  - name: leaves-the-earlier-built-slice-alone
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: 'rebase:[^\n]*email names its sender'
+    match: not_contains
+  - name: keeps-s1-done
+    type: regex
+    target: {source: file, path: docs/work/shipping-notes/plan.md}
+    pattern: '^\| *S1 *\|[^\n]*\| *done *\|'
+    flags: m
+  - name: keeps-s2-done
+    type: regex
+    target: {source: file, path: docs/work/shipping-notes/plan.md}
+    pattern: '^\| *S2 *\|[^\n]*\| *done *\|'
+    flags: m
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0

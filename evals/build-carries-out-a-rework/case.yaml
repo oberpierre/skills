@@ -1,0 +1,96 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-carries-out-a-rework
+description: With tracker github, /build S1 on a squash rework folds S2's commit into S1's in place with the gate run on the rewritten commit, merges S2's behaviour into the S1 row, removes the S2 row, sets S1 to done in the last commit, challenges the result once, closes S1's reopened issue as completed once its committed row is done and S2's issue as not planned naming S1, leaves the parent open and stops for review.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1
+  max_turns: 80
+  timeout_seconds: 600
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: starts-a-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 1
+  - name: rewrites-history-with-a-squash
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\trebase[^\n]*\((squash|fixup)\)[^\n]*\n(?:[^\n]*\n)*?[^\n]*\trebase[^\n]*\(finish\)'
+  - name: gates-the-squashed-commit-whose-committed-plan-is-final
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:[^\n]*\|both\|alone\|s1done\|sender\|s2gone$'
+    flags: m
+  - name: gates-the-first-later-commit
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:\^ t A recorder starts empty\|'
+    flags: m
+  - name: gates-the-second-later-commit
+    type: regex
+    target: {source: file, path: .eval-rebase.log}
+    pattern: '^rebase:\^ t A notifier is a class\|'
+    flags: m
+  - name: no-fixup-or-squash-commit-is-left-in-the-history
+    type: regex
+    target: {source: file, path: .git/logs/HEAD}
+    pattern: '\tcommit[^:\n]*: (fixup|squash)! [^\n]*\n(?![\s\S]*\trebase[^\n]*\(finish\))'
+    match: not_contains
+  - name: keeps-both-behaviours-and-tests
+    type: regex
+    target: {source: file, path: tests/test_email.py}
+    pattern: 'sender'
+  - name: challenges-the-rework-once
+    type: tool_used
+    tool: Skill
+    input_match: 'challenge'
+    min: 1
+    max: 1
+  - name: never-skips-the-hook
+    type: tool_used
+    tool: Bash
+    input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
+    min: 0
+    max: 0
+  - name: closes-the-surviving-issue-as-completed
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 2 --reason completed'
+    flags: m
+  - name: closes-the-surviving-issue-only-after-the-committed-row-is-done
+    type: regex
+    target: {source: file, path: gh-state.log}
+    pattern: '^issue close 2 --reason completed \| S1=done( |$)'
+    flags: m
+  - name: closes-each-issue-at-most-once
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close (\d+)\b[^\n]*\n(?:[^\n]*\n)*?issue close \1\b'
+    flags: m
+    match: not_contains
+  - name: closes-the-absorbed-issue-as-not-planned-naming-the-survivor
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3\b(?=[^\n]*--reason not planned)(?=[^\n]*--comment[^\n]*\bS1\b)'
+    flags: m
+  - name: does-not-close-the-absorbed-issue-as-completed
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue close 3 --reason completed'
+    flags: m
+    match: not_contains
+  - name: leaves-the-parent-open
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^issue (close|reopen|edit) 1\b'
+    flags: m
+    match: not_contains
+  - name: finds-issues-by-number-only
+    type: regex
+    target: {source: file, path: gh-calls.log}
+    pattern: '^(issue list|search)\b'
+    flags: m
+    match: not_contains

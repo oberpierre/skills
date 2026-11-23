@@ -68,6 +68,10 @@ A correction folded into the commit it corrects, before the user reviews it.
 **Lesson commit**:
 A correction kept in history as its own commit, because it records a discovery.
 
+**Close**:
+The last step of a feature, run by `/build close` once every slice is `done`. Running it is the user's approval of the last slice: it promotes the decisions the user picks to ADRs, carries the rest into the pull request or merge message, and deletes the plan.
+_Avoid_: finish, wrap up
+
 **Commit style**:
 The file stating how commit messages are written in a repository.
 _Avoid_: commit template

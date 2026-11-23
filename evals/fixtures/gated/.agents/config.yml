@@ -1,0 +1,3 @@
+gate: python3 scripts/gate.py
+commit_style: arlo-features
+tracker: markdown

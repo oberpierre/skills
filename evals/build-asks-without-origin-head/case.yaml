@@ -1,0 +1,42 @@
+# allow-tools: Write Edit Bash SendMessage
+# model: sonnet
+schema_version: "1.0"
+name: build-asks-without-origin-head
+description: When origin/HEAD is not set, /build S1 asks which branch is the default and stops before it creates a branch, starts a coding agent or commits.
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: /build S1
+  max_turns: 30
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
+graders:
+  - name: asks-which-branch-is-the-default
+    type: regex
+    pattern: 'which branch[^\n]*default|default[^\n]*which branch'
+    flags: i
+  - name: stays-on-main
+    type: regex
+    target: {source: file, path: .git/HEAD}
+    pattern: 'ref: refs/heads/main'
+  - name: commits-nothing
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/main}
+    pattern: '\t(?!commit \(initial\): Initial commit$|commit: Add the gate$|Branch: renamed )'
+    flags: m
+    match: not_contains
+  - name: starts-no-coding-agent
+    type: tool_used
+    tool: Agent
+    min: 0
+    max: 0
+  - name: writes-nothing
+    type: tool_used
+    tool: Write
+    min: 0
+    max: 0
+  - name: edits-nothing
+    type: tool_used
+    tool: Edit
+    min: 0
+    max: 0
+
