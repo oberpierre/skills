@@ -2,12 +2,13 @@
 # model: sonnet
 schema_version: "1.0"
 name: build-builds-the-whole-feature
-description: With tracker github, S1 done and its issue closed, S2 a rework with its own unmerged commit that set it done, and S3 todo, /build shipping-notes builds S2 and S3 with a coding agent each and leaves S1 alone, challenges each once, then challenges the whole branch against the whole plan once, and stops once with every slice done and named, closing the issues of S2 and S3 once each and only after every row is done.
+description: With tracker github, S1 done and its issue closed, S2 a rework with its own unmerged commit that set it done, and S3 todo, /build shipping-notes builds S2 and S3 with a coding agent each and leaves S1 alone, challenges each once, then challenges the whole branch against the whole plan once, and stops once with every slice done and named, writing every commit under commit_style plain as a short description with no type, marker, ticket or fixup, closing the issues of S2 and S3 once each and only after every row is done.
 context:
   scaffold_script: scaffold.sh
 execution:
   prompt: /build shipping-notes
   max_turns: 200
+  timeout_seconds: 600
   allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
 graders:
   - name: builds-on-the-plan-branch
@@ -114,3 +115,48 @@ graders:
     input_match: '--no-verify|\s-n\b[^|;&]*\bcommit|commit\b[^|;&]*\s-n\b'
     min: 0
     max: 0
+  - name: commits-on-the-plan-branch
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: (?!(carrier named in a shipped order.s message|mark s2 for rework)$)'
+    flags: m
+  - name: no-subject-has-a-type-or-marker-prefix
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: (?!(carrier named in a shipped order.s message|mark s2 for rework)$)([.^!@] [A-Za-z] |[a-z]+(\([^)\n]+\))?!?: |fixup!)'
+    match: not_contains
+  - name: no-subject-has-a-ticket
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: (?!(carrier named in a shipped order.s message|mark s2 for rework)$).*(\[[A-Z]+-[0-9]+\]|#[0-9]+)\s*$'
+    flags: m
+    match: not_contains
+  - name: describes-the-change
+    type: regex
+    target: {source: file, path: .git/logs/refs/heads/feature/shipping-notes}
+    pattern: '\tcommit[^:\n]*: (?!(carrier named in a shipped order.s message|mark s2 for rework)$)[A-Z][^\n]*[a-z]'
+    flags: m
+  - name: runs-the-gate
+    type: tool_used
+    tool: Bash
+    input_match: 'scripts/gate\.py'
+    min: 1
+  - name: commits-a-test-before-or-with-the-code
+    type: regex
+    target: {source: file, path: .eval-commit-files.log}
+    pattern: '\A(?:(?![^\n]*(?:tests/|notify/))[^\n]*\n)*(?![^\n]*tests/)[^\n]*notify/'
+    match: not_contains
+  - name: sets-s3-done-in-one-commit
+    type: regex
+    target: {source: file, path: .eval-commit-files.log}
+    pattern: 'done:S3'
+  - name: sets-s3-done-only-once
+    type: regex
+    target: {source: file, path: .eval-commit-files.log}
+    pattern: 'done:S3[^\n]*\n(?:[^\n]*\n)*?[^\n]*done:S3'
+    match: not_contains
+  - name: sets-s3-done-in-the-last-commit-that-touches-its-files
+    type: regex
+    target: {source: file, path: .eval-commit-files.log}
+    pattern: 'done:S3[^\n]*\n(?:[^\n]*\n)*?[^\n]*(?:notify/email\.py|tests/test_email\.py)'
+    match: not_contains

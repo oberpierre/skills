@@ -12,14 +12,20 @@ marker = 'print(f"gate:'
 src = src.replace(marker, open(sys.argv[1]).read() + "\n" + marker, 1)
 open(p, "w").write(src)
 PY
-printf ".eval-rebase.log\n.eval-head.log\n.eval-gate-snippet.py\n" >> .git/info/exclude
+sed -i 's/^tracker: .*/tracker: github/' .agents/config.yml
+printf '.eval-rebase.log\n.eval-head.log\n.eval-gate-snippet.py\n.eval-bin/\n.gh-issues/\ngh-calls.log\ngh-state.log\n.gh-plan\n.gh-next\n' >> .git/info/exclude
 git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "Add the gate"
 "$here/../fixtures/with-origin.sh"
 
 git checkout -q -b feature/shipping-notes
 commit() { git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "$1"; }
 plan=docs/work/shipping-notes/plan.md
-mkdir -p docs/work/shipping-notes
+mkdir -p docs/work/shipping-notes .eval-bin .gh-issues
+cp -L "$here/../fixtures/gh-stub/gh" .eval-bin/gh
+echo $plan > .gh-plan
+# S1 is done and its issue closed. /slice reopened S2's issue when it marked the row for rework.
+for n in 1 3; do echo "{\"number\":$n,\"title\":\"Issue $n\",\"body\":\"\",\"state\":\"OPEN\"}" > ".gh-issues/$n.json"; done
+echo '{"number":2,"title":"Issue 2","body":"","state":"CLOSED"}' > .gh-issues/2.json
 cp "$here/plan.md" $plan
 
 cat > notify/shipping.py <<'PY'
@@ -94,6 +100,6 @@ def test_a_notifier_is_a_class() -> None:
 PY
 commit "^ t A notifier is a class"
 
-sed -i 's/^\(| S2 .*\)| done | |/\1| rework | Rebuild: the carrier follows the tracking link as ` Carrier: <carrier>.`, replacing the ` via <carrier>.` that was built. |/' $plan
+sed -i 's/^\(| S2 .*\)| done | | #3 |/\1| rework | Rebuild: the carrier follows the tracking link as ` Carrier: <carrier>.`, replacing the ` via <carrier>.` that was built. | #3 |/' $plan
 commit "Mark S2 for rework"
 rm -f .eval-rebase.log

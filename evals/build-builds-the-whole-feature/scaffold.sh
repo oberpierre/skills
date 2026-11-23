@@ -12,7 +12,7 @@ marker = 'print(f"gate:'
 src = src.replace(marker, open(sys.argv[1]).read() + "\n" + marker, 1)
 open(p, "w").write(src)
 PY
-sed -i 's/^tracker: .*/tracker: github/' .agents/config.yml
+sed -i 's/^tracker: .*/tracker: github/; s/^commit_style: .*/commit_style: plain/' .agents/config.yml
 mkdir -p .eval-bin && cp -L "$here/../fixtures/gh-stub/gh" .eval-bin/gh
 printf '.eval-commits.log\n.eval-bin/\n.gh-issues/\ngh-calls.log\ngh-state.log\n.gh-plan\n.gh-next\n' >> .git/info/exclude
 echo docs/work/shipping-notes/plan.md > .gh-plan
@@ -29,10 +29,14 @@ python3 "$here/prebuilt.py" . s1
 git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "Add the gate"
 "$here/../fixtures/with-origin.sh"
 
-# S2 was built on the plan's branch and not merged, and then marked for rework.
+# S2 was built on the plan's branch and not merged, and then marked for rework. The subjects start in
+# lower case so that only a commit the build writes can satisfy a grader for a capitalised description.
 git checkout -q -b feature/shipping-notes
 python3 "$here/prebuilt.py" . s2
 sed -i 's/^\(| S2 .*\)| todo | |/\1| done | |/' $plan
-git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "^ F A shipped order's message names the carrier"
+git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "carrier named in a shipped order's message"
 cp "$here/plan.md" $plan
-git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "Mark S2 for rework"
+git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "mark s2 for rework"
+# Installed last, so the seed commits above stay out of the log and it holds only what the build commits.
+"$here/../fixtures/log-commits.sh" .eval-commit-files.log
+touch .eval-commit-files.log

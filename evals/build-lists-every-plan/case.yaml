@@ -2,7 +2,7 @@
 # model: sonnet
 schema_version: "1.0"
 name: build-lists-every-plan
-description: With two plans and no plan named, plain /build lists both, suggests /build shipping-notes S3 for the first and /build tracking S2 for the second, asks which plan to build nowhere, and changes nothing.
+description: With four plans and no plan named, plain /build lists them all, suggests /build shipping-notes S3 for the one whose first todo is blocked, /build tracking S2 for the one whose rework row blocks a todo, /build receipts close for the one with every slice done and no slice for the one whose table is broken, naming its missing blocker S9 and its rework row without a note, asks which plan to build nowhere, and changes nothing.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -20,6 +20,34 @@ graders:
     type: regex
     pattern: '/build (shipping-notes S2|tracking S3)'
     match: not_contains
+  - name: suggests-close-for-the-finished-plan
+    type: regex
+    pattern: '/build receipts close'
+  - name: suggests-no-slice-for-the-finished-plan
+    type: regex
+    pattern: '/build receipts S[0-9]'
+    match: not_contains
+  - name: lists-the-broken-plans-rows
+    type: regex
+    pattern: 'S4[^\n]*\btodo\b'
+  - name: names-the-missing-blocker
+    type: regex
+    pattern: 'S9'
+  - name: names-the-empty-rework-note
+    type: regex
+    pattern: '^(?=[^\n]*\bS3\b)(?=[^\n]*(\b(empty|no|without|missing)\b[^\n]*\bnote|\bnote[^\n]*\b(empty|missing)\b))'
+    flags: im
+  - name: suggests-no-slice-for-the-broken-plan
+    type: regex
+    pattern: '/build (returns )?S[0-9]'
+    match: not_contains
+  - name: lists-the-trackings-rework-row
+    type: regex
+    pattern: 'S2[^\n]*\brework\b'
+  - name: lists-the-broken-plans-rework-row
+    type: regex
+    pattern: '^(?=[^\n]*\bS3\b)(?=[^\n]*\brework\b)(?=[^\n]*return label)'
+    flags: m
   - name: asks-no-question
     type: regex
     pattern: 'which plan'

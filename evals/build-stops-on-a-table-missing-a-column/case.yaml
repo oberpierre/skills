@@ -2,7 +2,7 @@
 # model: sonnet
 schema_version: "1.0"
 name: build-stops-on-a-table-missing-a-column
-description: When the plan's table lacks the Blocked by column, /build S1 stops naming the missing column before it creates a branch, starts a coding agent or commits.
+description: When the plan's table lacks the Blocked by column, and under tracker github the Issue column, /build S1 stops naming both missing columns, and /slice to mirror the slices, before it creates a branch, starts a coding agent or commits.
 context:
   scaffold_script: scaffold.sh
 execution:
@@ -10,10 +10,18 @@ execution:
   max_turns: 30
   allowed_tools: [Read, Glob, Grep, Skill, Agent, SendMessage, Write, Edit, Bash]
 graders:
-  - name: names-the-missing-column
+  - name: names-the-missing-blocked-by-column
     type: llm
     criteria: >-
       The final response reports that the slices table is missing the `Blocked by` column.
+  - name: names-the-missing-issue-column
+    type: llm
+    criteria: >-
+      The final response reports that the slices table has no `Issue` column, which tracker github needs.
+  - name: names-slice
+    type: regex
+    target: last_message
+    pattern: '/slice'
   - name: starts-no-coding-agent
     type: tool_used
     tool: Agent
